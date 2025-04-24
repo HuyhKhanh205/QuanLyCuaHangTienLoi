@@ -36,26 +36,17 @@ public class NhanVien_Dao {
     }
 
     public void save(NhanVien nv) {
-        // Giữ nguyên hàm save đã có
+        if (findByMaNV(nv.getMaNV()) != null) {
+            throw new IllegalArgumentException("Mã nhân viên đã tồn tại.");
+        }
         try (Connection conn = ConnectDB.getConnection()) {
-            String checkSql = "SELECT COUNT(*) FROM NhanVien WHERE MaNV = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-            checkStmt.setString(1, nv.getMaNV());
-            ResultSet rs = checkStmt.executeQuery();
-            rs.next();
-            int count = rs.getInt(1);
-
-            if (count > 0) {
-                capNhatNhanVien(nv);
-            } else {
-                String insertSql = "INSERT INTO NhanVien (MaNV, TenNhanVien, ChucVu, Sdt) VALUES (?, ?, ?, ?)";
-                PreparedStatement insertStmt = conn.prepareStatement(insertSql);
-                insertStmt.setString(1, nv.getMaNV());
-                insertStmt.setString(2, nv.getTenNhanVien());
-                insertStmt.setString(3, nv.getChucVu());
-                insertStmt.setString(4, nv.getSdt());
-                insertStmt.executeUpdate();
-            }
+            String insertSql = "INSERT INTO NhanVien (MaNV, TenNhanVien, ChucVu, Sdt) VALUES (?, ?, ?, ?)";
+            PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+            insertStmt.setString(1, nv.getMaNV());
+            insertStmt.setString(2, nv.getTenNhanVien());
+            insertStmt.setString(3, nv.getChucVu());
+            insertStmt.setString(4, nv.getSdt());
+            insertStmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi khi lưu nhân viên: " + e.getMessage());
         }

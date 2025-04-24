@@ -34,24 +34,15 @@ public class DanhMucSP_Dao {
     }
 
     public void save(DanhMucSP dm) {
-        // Giữ nguyên hàm save đã có
+        if (findByMaDanhMuc(dm.getMaDanhMuc()) != null) {
+            throw new IllegalArgumentException("Mã danh mục đã tồn tại.");
+        }
         try (Connection conn = ConnectDB.getConnection()) {
-            String checkSql = "SELECT COUNT(*) FROM DanhMucSP WHERE MaDanhMuc = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-            checkStmt.setString(1, dm.getMaDanhMuc());
-            ResultSet rs = checkStmt.executeQuery();
-            rs.next();
-            int count = rs.getInt(1);
-
-            if (count > 0) {
-                capNhatDanhMuc(dm);
-            } else {
-                String insertSql = "INSERT INTO DanhMucSP (MaDanhMuc, TenDanhMuc) VALUES (?, ?)";
-                PreparedStatement insertStmt = conn.prepareStatement(insertSql);
-                insertStmt.setString(1, dm.getMaDanhMuc());
-                insertStmt.setString(2, dm.getTenDanhMuc());
-                insertStmt.executeUpdate();
-            }
+            String insertSql = "INSERT INTO DanhMucSP (MaDanhMuc, TenDanhMuc) VALUES (?, ?)";
+            PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+            insertStmt.setString(1, dm.getMaDanhMuc());
+            insertStmt.setString(2, dm.getTenDanhMuc());
+            insertStmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi khi lưu danh mục: " + e.getMessage());
         }
