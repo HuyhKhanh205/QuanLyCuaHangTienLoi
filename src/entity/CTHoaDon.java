@@ -6,15 +6,18 @@ public class CTHoaDon {
     private int soLuong;
     private double donGia;
     private double tongTien;
+    private KhachHang khachHang;
 
-    public CTHoaDon(HoaDon hoaDon, SanPham sanPham, int soLuong, double donGia) {
-        setHoaDon(hoaDon);
-        setSanPham(sanPham);
-        setSoLuong(soLuong);
-        setDonGia(donGia);
-        this.tongTien = tinhTongTien();
+    public CTHoaDon(HoaDon hoaDon, SanPham sanPham, int soLuong, double donGia, KhachHang khachHang) {
+        this.hoaDon = hoaDon;
+        this.sanPham = sanPham;
+        this.soLuong = soLuong;
+        this.donGia = donGia;
+        this.khachHang = khachHang;
     }
-
+    public CTHoaDon(HoaDon hoaDon, SanPham sanPham, int soLuong, double donGia) {
+        this(hoaDon, sanPham, soLuong, donGia, null);
+    }
     public void capNhatSoLuong(int soLuong) {
         setSoLuong(soLuong);
         this.tongTien = tinhTongTien();
@@ -34,7 +37,9 @@ public class CTHoaDon {
     }
 
     // Getters and Setters (giữ nguyên)
-    public HoaDon getHoaDon() { return hoaDon; }
+    public HoaDon getHoaDon() { 
+    	return hoaDon; 
+    	}
     public void setHoaDon(HoaDon hoaDon) {
         if (hoaDon == null) {
             throw new IllegalArgumentException("Hóa đơn không được rỗng.");
@@ -50,7 +55,9 @@ public class CTHoaDon {
         this.sanPham = sanPham;
     }
 
-    public int getSoLuong() { return soLuong; }
+    public int getSoLuong() { 
+    	return soLuong; 
+    	}
     public void setSoLuong(int soLuong) {
         if (soLuong <= 0) {
             throw new IllegalArgumentException("Số lượng phải lớn hơn 0.");
@@ -58,7 +65,9 @@ public class CTHoaDon {
         this.soLuong = soLuong;
     }
 
-    public double getDonGia() { return donGia; }
+    public double getDonGia() { 
+    	return donGia; 
+    	}
     public void setDonGia(double donGia) {
         if (donGia < 0) {
             throw new IllegalArgumentException("Đơn giá không được âm.");
@@ -66,8 +75,17 @@ public class CTHoaDon {
         this.donGia = donGia;
     }
 
-    public double getTongTien() { return tongTien; }
+    public double getTongTien() { 
+    	return tongTien; 
+    	}
     public void setTongTien(double tongTien) {
         this.tongTien = tongTien;
+    }
+    public KhachHang getKhachHang() {
+        return khachHang;
+    }
+
+    public void setKhachHang(KhachHang khachHang) {
+        this.khachHang = khachHang;
     }
 }

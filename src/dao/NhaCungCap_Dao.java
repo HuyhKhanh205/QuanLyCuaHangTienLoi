@@ -34,24 +34,15 @@ public class NhaCungCap_Dao {
     }
 
     public void save(NhaCungCap ncc) {
-        // Giữ nguyên hàm save đã có
+        if (findByMaNCC(ncc.getMancc()) != null) {
+            throw new IllegalArgumentException("Mã nhà cung cấp đã tồn tại.");
+        }
         try (Connection conn = ConnectDB.getConnection()) {
-            String checkSql = "SELECT COUNT(*) FROM NhaCungCap WHERE MaNCC = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-            checkStmt.setString(1, ncc.getMancc());
-            ResultSet rs = checkStmt.executeQuery();
-            rs.next();
-            int count = rs.getInt(1);
-
-            if (count > 0) {
-                capNhatNhaCungCap(ncc);
-            } else {
-                String insertSql = "INSERT INTO NhaCungCap (MaNCC, TenNCC) VALUES (?, ?)";
-                PreparedStatement insertStmt = conn.prepareStatement(insertSql);
-                insertStmt.setString(1, ncc.getMancc());
-                insertStmt.setString(2, ncc.getTenncc());
-                insertStmt.executeUpdate();
-            }
+            String insertSql = "INSERT INTO NhaCungCap (MaNCC, TenNCC) VALUES (?, ?)";
+            PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+            insertStmt.setString(1, ncc.getMancc());
+            insertStmt.setString(2, ncc.getTenncc());
+            insertStmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi khi lưu nhà cung cấp: " + e.getMessage());
         }

@@ -12,10 +12,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class SanPham_Dao {
-    private NhaCungCap_Dao nhaCungCapDao = new NhaCungCap_Dao();
-    private DanhMucSP_Dao danhMucDao = new DanhMucSP_Dao();
 
     public void save(SanPham sp) {
+        if (findByMaSP(sp.getMaSP()) != null) {
+            throw new IllegalArgumentException("Mã sản phẩm đã tồn tại.");
+        }
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "INSERT INTO SanPham (MaSP, TenSP, SoLuongTon, HSD, MaNCC, Gia, MaDanhMuc) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);

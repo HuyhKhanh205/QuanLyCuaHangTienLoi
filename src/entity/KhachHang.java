@@ -23,14 +23,6 @@ public class KhachHang {
         }
     }
 
-    public void suDungDiemTichLuy(int diem) {
-        if (diem > 0 && diem <= diemTichLuy) {
-            this.diemTichLuy -= diem;
-        } else {
-            throw new IllegalArgumentException("Điểm sử dụng không hợp lệ.");
-        }
-    }
-
     @Override
     public String toString() {
         return maKH + "," + tenKH + "," + sdt + "," + email + "," + diemTichLuy;
