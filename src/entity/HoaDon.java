@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import dao.HoaDon_Dao;
+
 public class HoaDon {
     private String maHD;
     private ArrayList<CTHoaDon> dsSanPham;
@@ -14,12 +16,32 @@ public class HoaDon {
         setNgayTao(ngayTao);
         this.dsSanPham = new ArrayList<>();
     }
+    
+    public HoaDon(String maHD) {
+        setMaHD(maHD);
+        this.ngayTao = new Date(); // Ngày hiện tại
+        this.dsSanPham = new ArrayList<>();
+    }
 
-    public void themSanPham(SanPham sp, int soLuong) {
-        if (sp == null || soLuong <= 0) {
-            throw new IllegalArgumentException("Sản phẩm hoặc số lượng không hợp lệ.");
+    // Tạo mã hóa đơn tự động
+    public static String taoMaHoaDon(HoaDon_Dao hoaDonDao) {
+        ArrayList<HoaDon> dsHoaDon = hoaDonDao.findAll();
+        int maxSoHD = 0;
+        for (HoaDon hd : dsHoaDon) {
+            String soHD = hd.getMaHD().replace("HD", "");
+            try {
+                int so = Integer.parseInt(soHD);
+                if (so > maxSoHD) {
+                    maxSoHD = so;
+                }
+            } catch (NumberFormatException ignored) {}
         }
-        dsSanPham.add(new CTHoaDon(this, sp, soLuong, sp.getGia()));
+        return String.format("HD%03d", maxSoHD + 1);
+    }
+
+    public void themSanPham(SanPham sp, int soLuong, KhachHang khachHang) {
+        CTHoaDon ct = new CTHoaDon(this, sp, soLuong, sp.getGia(), khachHang);
+        dsSanPham.add(ct);
     }
 
     public void xoaSanPham(String maSP) {
@@ -59,7 +81,9 @@ public class HoaDon {
         this.maHD = maHD;
     }
 
-    public ArrayList<CTHoaDon> getDsSanPham() { return dsSanPham; }
+    public ArrayList<CTHoaDon> getDsSanPham() { 
+    	return dsSanPham; 
+    	}
     public void setDsSanPham(ArrayList<CTHoaDon> dsSanPham) {
         if (dsSanPham == null) {
             throw new IllegalArgumentException("Danh sách sản phẩm không được rỗng.");
@@ -67,11 +91,14 @@ public class HoaDon {
         this.dsSanPham = dsSanPham;
     }
 
-    public Date getNgayTao() { return ngayTao; }
+    public Date getNgayTao() { 
+    	return ngayTao; 
+    	}
     public void setNgayTao(Date ngayTao) {
         if (ngayTao == null) {
             throw new IllegalArgumentException("Ngày tạo không được rỗng.");
         }
         this.ngayTao = ngayTao;
     }
+
 }

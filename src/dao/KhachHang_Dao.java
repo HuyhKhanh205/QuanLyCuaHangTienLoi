@@ -37,27 +37,18 @@ public class KhachHang_Dao {
     }
 
     public void save(KhachHang kh) {
-        // Giữ nguyên hàm save đã có
+        if (findByMaKH(kh.getMaKH()) != null) {
+            throw new IllegalArgumentException("Mã khách hàng đã tồn tại.");
+        }
         try (Connection conn = ConnectDB.getConnection()) {
-            String checkSql = "SELECT COUNT(*) FROM KhachHang WHERE MaKH = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-            checkStmt.setString(1, kh.getMaKH());
-            ResultSet rs = checkStmt.executeQuery();
-            rs.next();
-            int count = rs.getInt(1);
-
-            if (count > 0) {
-                capNhatKhachHang(kh);
-            } else {
-                String insertSql = "INSERT INTO KhachHang (MaKH, TenKH, Sdt, Email, DiemTichLuy) VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement insertStmt = conn.prepareStatement(insertSql);
-                insertStmt.setString(1, kh.getMaKH());
-                insertStmt.setString(2, kh.getTenKH());
-                insertStmt.setString(3, kh.getSdt());
-                insertStmt.setString(4, kh.getEmail());
-                insertStmt.setInt(5, kh.getDiemTichLuy());
-                insertStmt.executeUpdate();
-            }
+            String insertSql = "INSERT INTO KhachHang (MaKH, TenKH, Sdt, Email, DiemTichLuy) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+            insertStmt.setString(1, kh.getMaKH());
+            insertStmt.setString(2, kh.getTenKH());
+            insertStmt.setString(3, kh.getSdt());
+            insertStmt.setString(4, kh.getEmail());
+            insertStmt.setInt(5, kh.getDiemTichLuy());
+            insertStmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi khi lưu khách hàng: " + e.getMessage());
         }
