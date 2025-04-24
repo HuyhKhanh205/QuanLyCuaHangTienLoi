@@ -134,9 +134,9 @@ public class QuanLyCuaHang extends JFrame {
         menuBar.add(baoCaoMenu);
         setJMenuBar(menuBar);
         
-        JLabel background= new JLabel(new ImageIcon("D:\\Java\\IMG\\AnhoLe_PC.png"));
-        add(background);
-        background.setLayout(new FlowLayout());
+//        JLabel background= new JLabel(new ImageIcon("D:\\Java\\IMG\\AnhoLe_PC.png"));
+//        add(background);
+//        background.setLayout(new FlowLayout());
         
 
         mainPanel = new JPanel(new BorderLayout());
@@ -198,7 +198,7 @@ public class QuanLyCuaHang extends JFrame {
         baoCaoDoanhThu.addActionListener(e -> taoBaoCaoDoanhThu());
         baoCaoTonKho.addActionListener(e -> taoBaoCaoTonKho());
 
-        background.add(mainPanel);
+    add(mainPanel);
     }
 
     // Panels

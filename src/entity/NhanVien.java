@@ -13,7 +13,11 @@ public class NhanVien {
         setSdt(sdt);
     }
 
-    public boolean kiemTraPhanQuyen(String chucVu) {
+    public NhanVien() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public boolean kiemTraPhanQuyen(String chucVu) {
         return this.chucVu != null && this.chucVu.equals(chucVu);
     }
 
