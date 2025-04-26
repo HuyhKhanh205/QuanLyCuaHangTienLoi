@@ -8,22 +8,32 @@ import dao.HoaDon_Dao;
 
 public class HoaDon {
     private String maHD;
+    private KhachHang khachHang;
+    private NhanVien nhanVien;
     private ArrayList<CTHoaDon> dsSanPham;
     private Date ngayTao;
+    private int diemSuDung;
 
-    public HoaDon(String maHD, Date ngayTao) {
+    public HoaDon(String maHD, KhachHang khachHang, Date ngayTao) {
         setMaHD(maHD);
+        setKhachHang(khachHang);
         setNgayTao(ngayTao);
         this.dsSanPham = new ArrayList<>();
     }
     
+    public HoaDon(String maHD, KhachHang khachHang, NhanVien nhanVien) {
+        setMaHD(maHD);
+        setKhachHang(khachHang);
+        setNhanVien(nhanVien);
+        this.ngayTao = new Date();
+        this.dsSanPham = new ArrayList<>();
+    }
     public HoaDon(String maHD) {
         setMaHD(maHD);
-        this.ngayTao = new Date(); // Ngày hiện tại
+        this.ngayTao = new Date();
         this.dsSanPham = new ArrayList<>();
     }
 
-    // Tạo mã hóa đơn tự động
     public static String taoMaHoaDon(HoaDon_Dao hoaDonDao) {
         ArrayList<HoaDon> dsHoaDon = hoaDonDao.findAll();
         int maxSoHD = 0;
@@ -51,29 +61,32 @@ public class HoaDon {
     public double tinhTongTien() {
         double tong = 0;
         for (CTHoaDon ct : dsSanPham) {
-            tong += ct.tinhTongTien();
+            tong += ct.getTongTien();
         }
+        if (tong < 0) tong = 0;
         return tong;
     }
 
-    public void apDungKhuyenMai(KhuyenMai km) {
-        if (km == null || !km.kiemTraHieuLuc()) {
-            throw new IllegalArgumentException("Khuyến mãi không hợp lệ hoặc đã hết hiệu lực.");
+    public int getDiemSuDung() {
+        return diemSuDung;
+    }
+
+    public void setDiemSuDung(int diemSuDung) {
+        if (diemSuDung < 0) {
+            throw new IllegalArgumentException("Điểm sử dụng không được âm.");
         }
-        for (CTHoaDon ct : dsSanPham) {
-            double donGiaGiam = ct.getDonGia() * (1 - km.getGiaTriGiam() / 100);
-            ct.setDonGia(donGiaGiam);
-            ct.capNhatSoLuong(ct.getSoLuong()); // Cập nhật lại tổng tiền
-        }
+        this.diemSuDung = diemSuDung;
     }
 
     public String layThongTinHoaDon() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        return "Hóa đơn: " + maHD + ", Ngày tạo: " + sdf.format(ngayTao) + ", Tổng tiền: " + tinhTongTien();
+        return "Hóa đơn: " + maHD + ", Khách hàng: " + (khachHang != null ? khachHang.getTenKH() : "Không xác định") + ", Ngày tạo: " + sdf.format(ngayTao) + ", Tổng tiền: " + tinhTongTien();
     }
 
-    // Getters and Setters
-    public String getMaHD() { return maHD; }
+    public String getMaHD() { 
+    	return maHD; 
+    }
+    
     public void setMaHD(String maHD) {
         if (maHD == null || maHD.trim().isEmpty()) {
             throw new IllegalArgumentException("Mã hóa đơn không được rỗng.");
@@ -81,9 +94,18 @@ public class HoaDon {
         this.maHD = maHD;
     }
 
+    public KhachHang getKhachHang() { 
+    	return khachHang; 
+    }
+    
+    public void setKhachHang(KhachHang khachHang) {
+        this.khachHang = khachHang;
+    }
+
     public ArrayList<CTHoaDon> getDsSanPham() { 
     	return dsSanPham; 
-    	}
+    }
+    
     public void setDsSanPham(ArrayList<CTHoaDon> dsSanPham) {
         if (dsSanPham == null) {
             throw new IllegalArgumentException("Danh sách sản phẩm không được rỗng.");
@@ -93,12 +115,20 @@ public class HoaDon {
 
     public Date getNgayTao() { 
     	return ngayTao; 
-    	}
+    }
+    
     public void setNgayTao(Date ngayTao) {
         if (ngayTao == null) {
             throw new IllegalArgumentException("Ngày tạo không được rỗng.");
         }
         this.ngayTao = ngayTao;
     }
-
+    
+    public NhanVien getNhanVien() {
+    	return nhanVien; 
+    }
+    
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
+    }
 }

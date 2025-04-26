@@ -16,11 +16,11 @@ public class KhachHang {
     }
 
     public void congDiemTichLuy(int diem) {
-        if (diem > 0) {
-            this.diemTichLuy += diem;
-        } else {
-            throw new IllegalArgumentException("Điểm cộng phải lớn hơn 0.");
+        int newDiem = this.diemTichLuy + diem;
+        if (newDiem < 0) {
+            throw new IllegalArgumentException("Điểm tích lũy không thể âm.");
         }
+        this.diemTichLuy = newDiem;
     }
 
     @Override
@@ -28,7 +28,6 @@ public class KhachHang {
         return maKH + "," + tenKH + "," + sdt + "," + email + "," + diemTichLuy;
     }
 
-    // Getters and Setters (đã có, giữ nguyên)
     public String getMaKH() { return maKH; }
     public void setMaKH(String maKH) {
         if (maKH == null || maKH.trim().isEmpty()) {

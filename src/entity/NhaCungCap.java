@@ -14,7 +14,6 @@ public class NhaCungCap {
         return mancc + "," + tenncc;
     }
 
-    // Getters and Setters (giữ nguyên)
     public String getMancc() { return mancc; }
     public void setMancc(String mancc) {
         if (mancc == null || mancc.trim().isEmpty()) {

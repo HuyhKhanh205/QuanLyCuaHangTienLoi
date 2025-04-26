@@ -1,6 +1,9 @@
 package gui;
 
 import javax.swing.*;
+
+import entity.NhanVien;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -8,6 +11,7 @@ public class DangNhap extends JFrame {
     private JTextField txtTenDangNhap;
     private JPasswordField txtMatKhau;
     private JButton btnDangNhap;
+	private NhanVien nv;
 
     public DangNhap() {
         setTitle("Đăng nhập hệ thống");
@@ -61,13 +65,13 @@ public class DangNhap extends JFrame {
     }
 
     private void dangNhap() {
+    	
         String user = txtTenDangNhap.getText().trim();
         String pass = new String(txtMatKhau.getPassword()).trim();
-
         if (user.equals("admin") && pass.equals("admin")) {
             JOptionPane.showMessageDialog(this, "Đăng nhập thành công!");
             this.dispose();
-            new QuanLyCuaHang().setVisible(true);
+            new QuanLyCuaHang(nv).setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu!");
         }

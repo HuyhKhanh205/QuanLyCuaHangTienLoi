@@ -64,6 +64,7 @@ CREATE TABLE HoaDon (
     NgayTao DATE NOT NULL,
     MaKH NVARCHAR(50) NULL,
     MaNV NVARCHAR(50) NULL,
+    DiemSuDung INT NOT NULL DEFAULT 0 CHECK (DiemSuDung >= 0), -- Thêm cột DiemSuDung
     FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
     FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
 );
@@ -76,10 +77,12 @@ CREATE TABLE CTHoaDon (
     DonGia FLOAT NOT NULL CHECK (DonGia >= 0),
     TongTien FLOAT NOT NULL CHECK (TongTien >= 0),
     MaKH NVARCHAR(50) NULL,
+    IdKM NVARCHAR(50) NULL,
     PRIMARY KEY (MaHD, MaSP),
     FOREIGN KEY (MaHD) REFERENCES HoaDon(MaHD),
     FOREIGN KEY (MaSP) REFERENCES SanPham(MaSP),
-    FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH)
+    FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
+    FOREIGN KEY (IdKM) REFERENCES KhuyenMai(IDKM)
 );
 
 -- Tạo bảng BaoCao
@@ -90,6 +93,7 @@ CREATE TABLE BaoCao (
     NoiDung NVARCHAR(MAX) NOT NULL
 );
 GO
+
 -- Chèn dữ liệu vào NhaCungCap
 INSERT INTO NhaCungCap (MaNCC, TenNCC) VALUES
 ('NCC001', N'Công ty TNHH Vinamilk'),
@@ -125,20 +129,3 @@ INSERT INTO NhanVien (MaNV, TenNhanVien, ChucVu, SDT) VALUES
 INSERT INTO KhuyenMai (IDKM, MoTa, GiaTriGiam, NgayBatDau, NgayKetThuc) VALUES
 ('KM001', N'Giảm 10% cho sữa', 0.1, '2025-04-01', '2025-04-30'),
 ('KM002', N'Giảm 5000đ cho bánh kẹo', 5000, '2025-04-15', '2025-05-15');
-
--- Chèn dữ liệu vào HoaDon
-INSERT INTO HoaDon (MaHD, NgayTao, MaKH, MaNV) VALUES
-('HD001', '2025-04-20', 'KH001', 'NV002'),
-('HD002', '2025-04-22', 'KH002', 'NV002');
-
--- Chèn dữ liệu vào CTHoaDon
-INSERT INTO CTHoaDon (MaHD, MaSP, SoLuong, DonGia, TongTien, MaKH) VALUES
-('HD001', 'SP001', 2, 30000, 60000, 'KH001'),
-('HD001', 'SP002', 1, 25000, 25000, 'KH001'),
-('HD002', 'SP003', 3, 10000, 30000, 'KH002'),
-('HD002', 'SP004', 2, 35000, 70000, 'KH002');
-
--- Chèn dữ liệu vào BaoCao
-INSERT INTO BaoCao (IDBaoCao, LoaiBaoCao, TenBaoCao, NoiDung) VALUES
-('BC001', N'DoanhThu', N'Báo cáo doanh thu tháng 4/2025', N'Báo cáo doanh thu từ 01/04/2025 đến 30/04/2025\nChi tiết:\nHóa đơn: HD001, Ngày: 20/04/2025, Doanh thu: 85000\nHóa đơn: HD002, Ngày: 22/04/2025, Doanh thu: 100000\nTổng doanh thu: 185000'),
-('BC002', N'TonKho', N'Báo cáo tồn kho ngày 24/04/2025', N'Báo cáo tồn kho tại thời điểm 24/04/2025 10:00:00\nChi tiết:\nSản phẩm: SP001, Tên: Sữa tươi Vinamilk 1L, Số lượng tồn: 100, HSD: 31/12/2025, Danh mục: Sữa và sản phẩm từ sữa\nSản phẩm: SP002, Tên: Bánh quy Hải Hà 200g, Số lượng tồn: 50, HSD: 30/06/2025, Danh mục: Bánh kẹo');

@@ -11,7 +11,9 @@ import java.util.ArrayList;
 
 public class DSSanPham_Dao {
     private SanPham_Dao sanPhamDao = new SanPham_Dao();
-
+    private ArrayList<SanPham> dsSanPham;
+	private SanPham sp;
+    
     public void themSanPham(SanPham sp) {
         sanPhamDao.save(sp);
     }
@@ -29,7 +31,7 @@ public class DSSanPham_Dao {
     }
 
     public ArrayList<SanPham> layDanhSachTheoDanhMuc(String maDanhMuc) {
-        ArrayList<SanPham> dsSanPham = new ArrayList<>();
+        dsSanPham = new ArrayList<>();
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "SELECT sp.MaSP, sp.TenSP, sp.SoLuongTon, sp.HSD, sp.MaNCC, sp.Gia, sp.MaDanhMuc, ncc.TenNCC, dm.TenDanhMuc " +
                          "FROM SanPham sp " +
@@ -40,7 +42,7 @@ public class DSSanPham_Dao {
             stmt.setString(1, maDanhMuc);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                SanPham sp = new SanPham(
+                	sp = new SanPham(
                     rs.getString("MaSP"),
                     rs.getString("TenSP"),
                     rs.getInt("SoLuongTon"),
@@ -58,12 +60,12 @@ public class DSSanPham_Dao {
     }
 
     public boolean kiemTraTonKho(String maSP, int soLuong) {
-        SanPham sp = sanPhamDao.findByMaSP(maSP);
+        sp = sanPhamDao.findByMaSP(maSP);
         return sp != null && sp.getSoLuongTon() >= soLuong;
     }
 
     public void nhapKho(String maSP, int soLuong) {
-        SanPham sp = sanPhamDao.findByMaSP(maSP);
+        sp = sanPhamDao.findByMaSP(maSP);
         if (sp != null) {
             sp.capNhatSoLuong(soLuong);
             sanPhamDao.update(sp);
@@ -73,7 +75,7 @@ public class DSSanPham_Dao {
     }
 
     public void xuatKho(String maSP, int soLuong) {
-        SanPham sp = sanPhamDao.findByMaSP(maSP);
+        sp = sanPhamDao.findByMaSP(maSP);
         if (sp != null) {
             if (sp.getSoLuongTon() >= soLuong) {
                 sp.capNhatSoLuong(-soLuong);

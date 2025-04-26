@@ -17,7 +17,6 @@ public class DanhMucSP {
                '}';
     }
 
-    // Getters and Setters
     public String getMaDanhMuc() { return maDanhMuc; }
     public void setMaDanhMuc(String maDanhMuc) {
         if (maDanhMuc == null || maDanhMuc.trim().isEmpty()) {

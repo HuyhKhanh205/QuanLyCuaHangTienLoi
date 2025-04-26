@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DanhMucSP_Dao {
+	private ArrayList<DanhMucSP> dsDanhMuc;
+	
     public void themDanhMuc(DanhMucSP dm) {
         save(dm);
     }
@@ -49,8 +51,7 @@ public class DanhMucSP_Dao {
     }
 
     public ArrayList<DanhMucSP> findAll() {
-        // Giữ nguyên hàm findAll đã có
-        ArrayList<DanhMucSP> dsDanhMuc = new ArrayList<>();
+        dsDanhMuc = new ArrayList<>();
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "SELECT MaDanhMuc, TenDanhMuc FROM DanhMucSP";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -65,7 +66,6 @@ public class DanhMucSP_Dao {
     }
 
     public void delete(String maDanhMuc) {
-        // Giữ nguyên hàm delete đã có
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "DELETE FROM DanhMucSP WHERE MaDanhMuc = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -77,7 +77,6 @@ public class DanhMucSP_Dao {
     }
 
     public DanhMucSP findByMaDanhMuc(String maDanhMuc) {
-        // Giữ nguyên hàm findByMaDanhMuc đã có
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "SELECT MaDanhMuc, TenDanhMuc FROM DanhMucSP WHERE MaDanhMuc = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);

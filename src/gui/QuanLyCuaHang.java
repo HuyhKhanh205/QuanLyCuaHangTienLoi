@@ -13,6 +13,12 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class QuanLyCuaHang extends JFrame {
+	private JMenuBar menuBar;
+	private JMenu banHangMenu,quanLyMenu,baoCaoMenu;
+	private JMenuItem sanPhamItem,nhaCungCapItem,danhMucItem,nhanVienItem,khuyenMaiItem,hoaDonItem,khachHangItem;
+	private JMenuItem nhapKhoItem,xuatKhoItem,congDiemItem,xemChiTietItem;
+	private JPopupMenu contextMenu;
+	
     private DSSanPham dsSanPham;
     private ArrayList<NhaCungCap> dsNhaCungCap;
     private ArrayList<DanhMucSP> dsDanhMuc;
@@ -20,23 +26,26 @@ public class QuanLyCuaHang extends JFrame {
     private ArrayList<HoaDon> dsHoaDon;
     private ArrayList<KhachHang> dsKhachHang;
     private ArrayList<NhanVien> dsNhanVien;
+    private ArrayList<CTHoaDon> tempCTHoaDons;
+    private ArrayList<BaoCao> dsBaoCao;
+    
+    private JTextArea baoCaoTextArea,textArea;
+    private JScrollPane scrollPane;
+    private JTable sanPhamTable, nhaCungCapTable, danhMucTable, khachHangTable, nhanVienTable, khuyenMaiTable,hoaDonTable
+    ,banHangTable;
+    private DefaultTableModel sanPhamTableModel, nhaCungCapTableModel, danhMucTableModel, khachHangTableModel, 
+    nhanVienTableModel, khuyenMaiTableModel,hoaDonTableModel,banHangTableModel;
 
-    private JTable sanPhamTable, nhaCungCapTable, danhMucTable, khachHangTable, nhanVienTable, khuyenMaiTable;
-    private JTable hoaDonTable;
-    private DefaultTableModel sanPhamTableModel, nhaCungCapTableModel, danhMucTableModel, khachHangTableModel, nhanVienTableModel, khuyenMaiTableModel;
-    private DefaultTableModel hoaDonTableModel;
-
-    private JPanel currentPanel;
-    private JPanel mainPanel;
-
-    private JTextField maSPField, tenSPField, soLuongField, hsdField, giaField;
-    private JComboBox<String> nhaCungCapComboBox, danhMucComboBox;
-    private JTextField maNCCFieldForm, tenNCCFieldForm;
-    private JTextField maDanhMucField, tenDanhMucField;
+    private JPanel currentPanel,mainPanel,panel,formPanel,buttonPanel,khPanel,southPanel;
+    
+    private JComboBox<String> nhaCungCapComboBox, danhMucComboBox,khachHangComboBox,sanPhamComboBox,danhMucCombo;
+    private JTextField maSPField, tenSPField, soLuongField, hsdField, giaField,diemSuDungField;
+    private JTextField maNCCFieldForm, tenNCCFieldForm,maDanhMucField, tenDanhMucField,tuNgayField,denNgayField;
     private JTextField maKHField, tenKHField, sdtKHField, emailKHField, diemTichLuyField;
-    private JTextField maNVField, tenNVField, chucVuField, sdtNVField;
+    private JTextField maNVField, tenNVField, chucVuField, sdtNVField,tongTienField,sdtField,emailField,diemField;
     private JTextField idKMField, moTaKMField, giaTriGiamField, ngayBatDauKMField, ngayKetThucKMField;
-    private JTextField maHDField, ngayTaoHDField;
+    private JButton addButton,updateButton,deleteButton,xemTheoDanhMucButton,xemTatCaButton,doanhThuButton,tonKhoButton
+	,themSPButton,xoaSPButton,taoHoaDonButton,themKhachHangButton,clearButton,suDungDiemButton,apDungKMButton;
 
     private SanPham_Dao sanPhamDao = new SanPham_Dao();
     private NhaCungCap_Dao nhaCungCapDao = new NhaCungCap_Dao();
@@ -47,29 +56,45 @@ public class QuanLyCuaHang extends JFrame {
     private HoaDon_Dao hoaDonDao = new HoaDon_Dao();
     private DSSanPham_Dao dsSanPhamDao = new DSSanPham_Dao();
     private BaoCao_Dao baoCaoDao = new BaoCao_Dao();
-
-    public QuanLyCuaHang() {
-        dsSanPham = new DSSanPham();
-        dsSanPham.setDsSanPham(sanPhamDao.findAll());
-        dsNhaCungCap = nhaCungCapDao.findAll();
-        dsDanhMuc = danhMucDao.findAll();
-        dsKhuyenMai = khuyenMaiDao.findAll();
-        dsHoaDon = hoaDonDao.findAll();
-        dsKhachHang = khachHangDao.findAll();
-        dsNhanVien = nhanVienDao.findAll();
-        initUI();
-    }
+	
+	private KhachHang kh;
+	private HoaDon hd;
+	private SanPham sp;
+	private CTHoaDon ct;
+	private NhaCungCap ncc;
+	private DanhMucSP dm;
+	private NhanVien nv;
+	private KhuyenMai km;
+	private BaoCao bc;
+	private NhanVien loggedInNhanVien;
+	
+	private boolean isKhuyenMaiApplied = false;
+	private boolean isDiemUsed = false;
+	private int diemSuDungTemp = 0;
+	
+	public QuanLyCuaHang(NhanVien nv) {
+	    this.loggedInNhanVien = nv;
+	    dsSanPham = new DSSanPham();
+	    dsSanPham.setDsSanPham(sanPhamDao.findAll());
+	    dsNhaCungCap = nhaCungCapDao.findAll();
+	    dsDanhMuc = danhMucDao.findAll();
+	    dsKhuyenMai = khuyenMaiDao.findAll();
+	    dsHoaDon = hoaDonDao.findAll();
+	    dsKhachHang = khachHangDao.findAll();
+	    dsNhanVien = nhanVienDao.findAll();
+	    initUI();
+	}
 
     private void initUI() {
-        setTitle("Quản Lý Cửa Hàng");
+    	setTitle("Quản Lý Cửa Hàng - " + "(" + loggedInNhanVien.getChucVu() + " - " + loggedInNhanVien.getTenNhanVien() + ")");
         setSize(1024, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JMenuBar menuBar = new JMenuBar();
+        menuBar = new JMenuBar();
 
         // Menu Bán Hàng
-        JMenu banHangMenu = new JMenu("Bán Hàng");
+        banHangMenu = new JMenu("Bán Hàng");
         banHangMenu.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 showBanHangPanel();
@@ -77,32 +102,32 @@ public class QuanLyCuaHang extends JFrame {
         });
 
         // Menu Quản Lý
-        JMenu quanLyMenu = new JMenu("Quản Lý");
+        quanLyMenu = new JMenu("Quản Lý");
 
         // Các mục con của Quản Lý
-        JMenuItem sanPhamItem = new JMenuItem("Sản Phẩm");
+        sanPhamItem = new JMenuItem("Sản Phẩm");
         sanPhamItem.addActionListener(e -> showSanPhamPanel());
 
-        JMenuItem nhaCungCapItem = new JMenuItem("Nhà Cung Cấp");
+        nhaCungCapItem = new JMenuItem("Nhà Cung Cấp");
         nhaCungCapItem.addActionListener(e -> showNhaCungCapPanel());
 
-        JMenuItem danhMucItem = new JMenuItem("Danh Mục");
+        danhMucItem = new JMenuItem("Danh Mục");
         danhMucItem.addActionListener(e -> showDanhMucPanel());
 
-        JMenuItem khachHangItem = new JMenuItem("Khách Hàng");
+        khachHangItem = new JMenuItem("Khách Hàng");
         khachHangItem.addActionListener(e -> showKhachHangPanel());
 
-        JMenuItem nhanVienItem = new JMenuItem("Nhân Viên");
+        nhanVienItem = new JMenuItem("Nhân Viên");
         nhanVienItem.addActionListener(e -> showNhanVienPanel());
 
-        JMenuItem khuyenMaiItem = new JMenuItem("Khuyến Mãi");
+        khuyenMaiItem = new JMenuItem("Khuyến Mãi");
         khuyenMaiItem.addActionListener(e -> showKhuyenMaiPanel());
 
-        JMenuItem hoaDonItem = new JMenuItem("Hóa Đơn");
+        hoaDonItem = new JMenuItem("Hóa Đơn");
         hoaDonItem.addActionListener(e -> showHoaDonPanel());
 
         // Menu Báo Cáo
-        JMenu baoCaoMenu = new JMenu("Báo Cáo");
+        baoCaoMenu = new JMenu("Báo Cáo");
         baoCaoMenu.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 showBaoCaoPanel();
@@ -126,7 +151,7 @@ public class QuanLyCuaHang extends JFrame {
 
         mainPanel = new JPanel(new BorderLayout());
 
-        // Initialize tables
+        // Tạo tables
         String[] spColumns = {"Mã SP", "Tên SP", "Số Lượng", "HSD", "Nhà Cung Cấp", "Giá", "Loại SP"};
         sanPhamTableModel = new DefaultTableModel(spColumns, 0);
         sanPhamTable = new JTable(sanPhamTableModel);
@@ -157,7 +182,7 @@ public class QuanLyCuaHang extends JFrame {
         khuyenMaiTable = new JTable(khuyenMaiTableModel);
         loadKhuyenMaiTableData();
 
-        String[] hdColumns = {"Mã HD", "Ngày Tạo", "Tổng Tiền"};
+        String[] hdColumns = {"Mã HD", "Ngày Tạo", "Khách Hàng", "Nhân Viên", "Tổng Tiền"};
         hoaDonTableModel = new DefaultTableModel(hdColumns, 0);
         hoaDonTable = new JTable(hoaDonTableModel);
         loadHoaDonTableData();
@@ -170,41 +195,66 @@ public class QuanLyCuaHang extends JFrame {
 
     // Cập nhật panel Bán Hàng
     private JPanel createBanHangPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
+        panel = new JPanel(new BorderLayout());
 
-        // Bảng hiển thị sản phẩm đã chọn
         String[] columns = {"Mã SP", "Tên SP", "Số Lượng", "Đơn Giá", "Thành Tiền"};
-        DefaultTableModel banHangTableModel = new DefaultTableModel(columns, 0);
-        JTable banHangTable = new JTable(banHangTableModel);
-        JScrollPane scrollPane = new JScrollPane(banHangTable);
+        banHangTableModel = new DefaultTableModel(columns, 0);
+        banHangTable = new JTable(banHangTableModel);
+        scrollPane = new JScrollPane(banHangTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Form chọn sản phẩm và khách hàng
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel("Khách Hàng:"));
-        JComboBox<String> khachHangComboBox = new JComboBox<>();
+        khachHangComboBox = new JComboBox<>();
         updateKhachHangComboBox(khachHangComboBox);
         formPanel.add(khachHangComboBox);
 
         formPanel.add(new JLabel("Sản Phẩm:"));
-        JComboBox<String> sanPhamComboBox = new JComboBox<>();
+        sanPhamComboBox = new JComboBox<>();
         for (SanPham sp : dsSanPham.getDsSanPham()) {
             sanPhamComboBox.addItem(sp.getMaSP() + " - " + sp.getTenSP());
         }
         formPanel.add(sanPhamComboBox);
 
         formPanel.add(new JLabel("Số Lượng:"));
-        JTextField soLuongField = new JTextField(10);
+        soLuongField = new JTextField(10);
         formPanel.add(soLuongField);
 
         formPanel.add(new JLabel("Tổng Tiền:"));
-        JTextField tongTienField = new JTextField(10);
+        tongTienField = new JTextField(10);
         tongTienField.setEditable(false);
         formPanel.add(tongTienField);
+        
+        formPanel.add(new JLabel("Điểm Tích Lũy:"));
+        diemTichLuyField = new JTextField(10);
+        diemTichLuyField.setEditable(false);
+        formPanel.add(diemTichLuyField);
+        
+        formPanel.add(new JLabel("Khuyến Mãi:"));
+        JComboBox<String> khuyenMaiComboBox = new JComboBox<>();
+        khuyenMaiComboBox.addItem("Không chọn khuyến mãi");
+        for (KhuyenMai km : dsKhuyenMai) {
+            if (km.kiemTraHieuLuc()) {
+                khuyenMaiComboBox.addItem(km.getIdKM() + " - " + km.getMoTa());
+            }
+        }
+        formPanel.add(khuyenMaiComboBox);
 
-        // Cập nhật tổng tiền khi thay đổi bảng
+        khachHangComboBox.addActionListener(e -> {
+            String khStr = (String) khachHangComboBox.getSelectedItem();
+            if (khStr != null) {
+                String maKH = khStr.split(" - ")[0];
+                kh = khachHangDao.findByMaKH(maKH);
+                if (kh != null) {
+                    diemTichLuyField.setText(String.valueOf(kh.getDiemTichLuy()));
+                } else {
+                    diemTichLuyField.setText("0");
+                }
+            }
+        });
+        
         banHangTableModel.addTableModelListener(e -> {
             double tongTien = 0;
             for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
@@ -212,23 +262,33 @@ public class QuanLyCuaHang extends JFrame {
                 tongTien += thanhTien;
             }
             tongTienField.setText(String.valueOf(tongTien));
+            boolean coSanPham = banHangTableModel.getRowCount() > 0;
+            suDungDiemButton.setEnabled(coSanPham && !isDiemUsed);
+            apDungKMButton.setEnabled(coSanPham && !isKhuyenMaiApplied);
         });
 
-        // Nút điều khiển
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton themSPButton = new JButton("Thêm Sản Phẩm");
-        JButton xoaSPButton = new JButton("Xóa Sản Phẩm");
-        JButton taoHoaDonButton = new JButton("Tạo Hóa Đơn");
-        JButton themKhachHangButton = new JButton("Thêm Khách Hàng");
-        JButton clearButton = new JButton("Xóa Form");
+        buttonPanel = new JPanel(new FlowLayout());
+        themSPButton = new JButton("Thêm Sản Phẩm");
+        xoaSPButton = new JButton("Xóa Sản Phẩm");
+        taoHoaDonButton = new JButton("Tạo Hóa Đơn");
+        themKhachHangButton = new JButton("Thêm Khách Hàng");
+        clearButton = new JButton("Xóa Form");
+        suDungDiemButton = new JButton("Sử Dụng Điểm");
+        apDungKMButton = new JButton("Áp Dụng Khuyến Mãi");
+        
+        suDungDiemButton.setEnabled(false);
+        apDungKMButton.setEnabled(false);
 
         themSPButton.addActionListener(e -> {
             try {
                 String spStr = (String) sanPhamComboBox.getSelectedItem();
                 String maSP = spStr.split(" - ")[0];
                 int soLuong = Integer.parseInt(soLuongField.getText());
-
-                SanPham sp = sanPhamDao.findByMaSP(maSP);
+                if (soLuong <= 0) {
+                    JOptionPane.showMessageDialog(this, "Số lượng phải lớn hơn 0!");
+                    return;
+                }
+                sp = sanPhamDao.findByMaSP(maSP);
                 if (sp == null) {
                     JOptionPane.showMessageDialog(this, "Sản phẩm không tồn tại!");
                     return;
@@ -260,13 +320,13 @@ public class QuanLyCuaHang extends JFrame {
         });
 
         themKhachHangButton.addActionListener(e -> {
-            JTextField maKHField = new JTextField(10);
-            JTextField tenKHField = new JTextField(10);
-            JTextField sdtField = new JTextField(10);
-            JTextField emailField = new JTextField(10);
-            JTextField diemTichLuyField = new JTextField(10);
+            maKHField = new JTextField(10);
+            tenKHField = new JTextField(10);
+            sdtField = new JTextField(10);
+            emailField = new JTextField(10);
+            diemTichLuyField = new JTextField(10);
 
-            JPanel khPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+            khPanel = new JPanel(new GridLayout(5, 2, 10, 10));
             khPanel.add(new JLabel("Mã KH:"));
             khPanel.add(maKHField);
             khPanel.add(new JLabel("Tên KH:"));
@@ -287,7 +347,7 @@ public class QuanLyCuaHang extends JFrame {
                     String email = emailField.getText();
                     int diemTichLuy = Integer.parseInt(diemTichLuyField.getText());
 
-                    KhachHang kh = new KhachHang(maKH, tenKH, sdt, email, diemTichLuy);
+                    kh = new KhachHang(maKH, tenKH, sdt, email, diemTichLuy);
                     khachHangDao.themKhachHang(kh);
                     dsKhachHang.add(kh);
                     updateKhachHangComboBox(khachHangComboBox);
@@ -314,33 +374,76 @@ public class QuanLyCuaHang extends JFrame {
                     return;
                 }
                 String maKH = khStr.split(" - ")[0];
-                KhachHang kh = khachHangDao.findByMaKH(maKH);
+                kh = khachHangDao.findByMaKH(maKH);
                 if (kh == null) {
                     JOptionPane.showMessageDialog(this, "Khách hàng không tồn tại!");
                     return;
                 }
 
                 String maHD = HoaDon.taoMaHoaDon(hoaDonDao);
-                HoaDon hd = new HoaDon(maHD);
+                hd = new HoaDon(maHD, kh, loggedInNhanVien); 
 
+                String idKM = null;
+                if (isKhuyenMaiApplied) {
+                    String kmStr = (String) khuyenMaiComboBox.getSelectedItem();
+                    if (!kmStr.equals("Không chọn khuyến mãi")) {
+                        idKM = kmStr.split(" - ")[0];
+                    }
+                }
+
+                double tongTienTruocGiam = 0;
+                tempCTHoaDons = new ArrayList<>();
                 for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
                     String maSP = (String) banHangTableModel.getValueAt(i, 0);
                     int soLuong = (int) banHangTableModel.getValueAt(i, 2);
                     double donGia = (double) banHangTableModel.getValueAt(i, 3);
-                    double thanhTien = donGia * soLuong; // Tính thành tiền cho CTHoaDon
 
-                    SanPham sp = sanPhamDao.findByMaSP(maSP);
+                    sp = sanPhamDao.findByMaSP(maSP);
                     if (sp == null) {
                         throw new RuntimeException("Sản phẩm không tồn tại: " + maSP);
                     }
 
-                    // Thêm sản phẩm vào hóa đơn và đảm bảo CTHoaDon có TongTien
-                    CTHoaDon ct = new CTHoaDon(hd, sp, soLuong, donGia, kh);
-                    ct.setTongTien(thanhTien); // Gán TongTien cho CTHoaDon (giả sử CTHoaDon có setter này)
-                    hd.getDsSanPham().add(ct); // Thêm CTHoaDon vào danh sách của HoaDon
+                    ct = new CTHoaDon(hd, sp, soLuong, donGia, kh);
+                    ct.setIdKM(idKM);
+                    double thanhTien = ct.tinhTongTien(); 
+                    ct.setTongTien(thanhTien);
+                    tempCTHoaDons.add(ct);
+                    tongTienTruocGiam += thanhTien;
 
-                    dsSanPhamDao.xuatKho(maSP, soLuong); // Cập nhật tồn kho
+                    dsSanPhamDao.xuatKho(maSP, soLuong);
                 }
+
+                if (diemSuDungTemp > 0) {
+                    double giamGiaDiem = diemSuDungTemp * 1000;
+                    if (giamGiaDiem > tongTienTruocGiam) {
+                        giamGiaDiem = tongTienTruocGiam; 
+                    }
+                    double conLai = giamGiaDiem;
+                    for (int i = 0; i < tempCTHoaDons.size(); i++) {
+                        ct = tempCTHoaDons.get(i);
+                        double thanhTien = ct.getTongTien();
+                        double tiLe = thanhTien / tongTienTruocGiam; 
+                        double giam = giamGiaDiem * tiLe; 
+                        if (i == tempCTHoaDons.size() - 1) {
+                            giam = conLai; 
+                        }
+                        double newTongTien = thanhTien - giam;
+                        if (newTongTien < 0) newTongTien = 0;
+                        ct.setTongTien(newTongTien);
+                        conLai -= giam;
+                    }
+                }
+
+                for (CTHoaDon ct : tempCTHoaDons) {
+                    hd.getDsSanPham().add(ct);
+                }
+
+                hd.setDiemSuDung(diemSuDungTemp); 
+                kh.congDiemTichLuy(1);
+                khachHangDao.capNhatKhachHang(kh);
+                dsKhachHang = khachHangDao.findAll();
+                loadKhachHangTableData();
+                updateKhachHangComboBox(khachHangComboBox);
 
                 hoaDonDao.save(hd);
                 dsHoaDon.add(hd);
@@ -348,25 +451,152 @@ public class QuanLyCuaHang extends JFrame {
                 loadSanPhamTableData();
                 loadHoaDonTableData();
                 banHangTableModel.setRowCount(0);
+                isKhuyenMaiApplied = false;
+                diemSuDungTemp = 0; 
+                apDungKMButton.setEnabled(true);
                 JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! Mã hóa đơn: " + maHD);
+                isDiemUsed = false; 
+                suDungDiemButton.setEnabled(false); 
+                apDungKMButton.setEnabled(false);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
             }
         });
+        
+        suDungDiemButton.addActionListener(e -> {
+            try {
+                String khStr = (String) khachHangComboBox.getSelectedItem();
+                if (khStr == null) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng!");
+                    return;
+                }
+                String maKH = khStr.split(" - ")[0];
+                kh = khachHangDao.findByMaKH(maKH);
+                if (kh == null) {
+                    JOptionPane.showMessageDialog(this, "Khách hàng không tồn tại!");
+                    return;
+                }
 
+                int diem = kh.getDiemTichLuy();
+                if (diem <= 0) {
+                    JOptionPane.showMessageDialog(this, "Khách hàng không có điểm tích lũy!");
+                    return;
+                }
+
+                diemSuDungField = new JTextField(10);
+                panel = new JPanel();
+                panel.add(new JLabel("Số điểm muốn sử dụng (1 điểm = 1000 VNĐ):"));
+                panel.add(diemSuDungField);
+
+                int result = JOptionPane.showConfirmDialog(this, panel, "Sử Dụng Điểm", JOptionPane.OK_CANCEL_OPTION);
+                if (result == JOptionPane.OK_OPTION) {
+                    int diemSuDung;
+                    try {
+                        diemSuDung = Integer.parseInt(diemSuDungField.getText());
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Số điểm không hợp lệ!");
+                        return;
+                    }
+                    if (diemSuDung <= 0) {
+                        JOptionPane.showMessageDialog(this, "Số điểm sử dụng phải lớn hơn 0!");
+                        return;
+                    }
+                    if (diemSuDung > diem) {
+                        JOptionPane.showMessageDialog(this, "Số điểm sử dụng vượt quá điểm tích lũy!");
+                        return;
+                    }
+
+                    double giamGia = diemSuDung * 1000;
+                    double tongTien = Double.parseDouble(tongTienField.getText());
+                    tongTien -= giamGia;
+                    if (tongTien < 0) tongTien = 0;
+                    tongTienField.setText(String.valueOf(tongTien));
+
+                    diemSuDungTemp = diemSuDung; 
+
+                    kh.congDiemTichLuy(-diemSuDung); 
+                    khachHangDao.capNhatKhachHang(kh);
+                    dsKhachHang = khachHangDao.findAll();
+                    loadKhachHangTableData();
+                    diemTichLuyField.setText(String.valueOf(kh.getDiemTichLuy()));
+                    isDiemUsed = true;
+                    suDungDiemButton.setEnabled(false); 
+                    JOptionPane.showMessageDialog(this, "Sử dụng điểm thành công!");
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+            }
+        });
+        
         clearButton.addActionListener(e -> {
             banHangTableModel.setRowCount(0);
             soLuongField.setText("");
             khachHangComboBox.setSelectedIndex(0);
         });
 
+        apDungKMButton.addActionListener(e -> {
+            try {
+                if (isKhuyenMaiApplied) {
+                    JOptionPane.showMessageDialog(this, "Khuyến mãi đã được áp dụng!");
+                    return;
+                }
+
+                String kmStr = (String) khuyenMaiComboBox.getSelectedItem();
+                if (kmStr.equals("Không chọn khuyến mãi")) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn khuyến mãi!");
+                    return;
+                }
+
+                String idKM = kmStr.split(" - ")[0];
+                km = khuyenMaiDao.timKhuyenMai(idKM);
+                if (km == null || !km.kiemTraHieuLuc()) {
+                    JOptionPane.showMessageDialog(this, "Khuyến mãi không hợp lệ hoặc đã hết hiệu lực!");
+                    return;
+                }
+
+                double tongTienGoc = 0;
+                for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
+                    int soLuong = (int) banHangTableModel.getValueAt(i, 2);
+                    double donGia = (double) banHangTableModel.getValueAt(i, 3);
+                    tongTienGoc += soLuong * donGia;
+                }
+
+                double tongTien = Double.parseDouble(tongTienField.getText());
+                double giamGia;
+                if (km.getGiaTriGiam() < 1) {
+                    giamGia = tongTienGoc * km.getGiaTriGiam(); 
+                } else {
+                    giamGia = km.getGiaTriGiam();
+                }
+                tongTien -= giamGia;
+                if (tongTien < 0) tongTien = 0;
+                tongTienField.setText(String.valueOf(tongTien));
+
+                for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
+                    String maSP = (String) banHangTableModel.getValueAt(i, 0);
+                    ct = new CTHoaDon(null, sanPhamDao.findByMaSP(maSP), 
+                        (int) banHangTableModel.getValueAt(i, 2), 
+                        (double) banHangTableModel.getValueAt(i, 3), kh);
+                    ct.setIdKM(idKM);
+                }
+
+                isKhuyenMaiApplied = true;
+                apDungKMButton.setEnabled(false); 
+                JOptionPane.showMessageDialog(this, "Áp dụng khuyến mãi thành công!");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+            }
+        });
+        
         buttonPanel.add(themSPButton);
         buttonPanel.add(xoaSPButton);
         buttonPanel.add(themKhachHangButton);
         buttonPanel.add(taoHoaDonButton);
         buttonPanel.add(clearButton);
+        buttonPanel.add(suDungDiemButton);
+        buttonPanel.add(apDungKMButton);
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
         panel.add(southPanel, BorderLayout.SOUTH);
@@ -374,7 +604,6 @@ public class QuanLyCuaHang extends JFrame {
         return panel;
     }
 
-    // Phương thức cập nhật JComboBox khách hàng
     private void updateKhachHangComboBox(JComboBox<String> comboBox) {
         comboBox.removeAllItems();
         for (KhachHang kh : dsKhachHang) {
@@ -382,13 +611,12 @@ public class QuanLyCuaHang extends JFrame {
         }
     }
 
-    // Các phương thức khác giữ nguyên từ file gốc
     private JPanel createSanPhamPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(sanPhamTable);
+        panel = new JPanel(new BorderLayout());
+        scrollPane = new JScrollPane(sanPhamTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
+        formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel("Mã SP:"));
@@ -421,13 +649,13 @@ public class QuanLyCuaHang extends JFrame {
         updateDanhMucComboBox();
         formPanel.add(danhMucComboBox);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Thêm");
-        JButton updateButton = new JButton("Cập Nhật");
-        JButton deleteButton = new JButton("Xóa");
-        JButton clearButton = new JButton("Xóa Form");
-        JButton xemTheoDanhMucButton = new JButton("Xem Theo Danh Mục");
-        JButton xemTatCaButton = new JButton("Xem Tất Cả");
+        buttonPanel = new JPanel(new FlowLayout());
+        addButton = new JButton("Thêm");
+        updateButton = new JButton("Cập Nhật");
+        deleteButton = new JButton("Xóa");
+        clearButton = new JButton("Xóa Form");
+        xemTheoDanhMucButton = new JButton("Xem Theo Danh Mục");
+        xemTatCaButton = new JButton("Xem Tất Cả");
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -449,7 +677,7 @@ public class QuanLyCuaHang extends JFrame {
         sanPhamTable.getSelectionModel().addListSelectionListener(e -> selectSanPham());
         addSanPhamContextMenu();
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
         panel.add(southPanel, BorderLayout.SOUTH);
@@ -458,11 +686,11 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private JPanel createNhaCungCapPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(nhaCungCapTable);
+        panel = new JPanel(new BorderLayout());
+        scrollPane = new JScrollPane(nhaCungCapTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel("Mã NCC:"));
@@ -473,10 +701,10 @@ public class QuanLyCuaHang extends JFrame {
         tenNCCFieldForm = new JTextField(15);
         formPanel.add(tenNCCFieldForm);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Thêm");
-        JButton deleteButton = new JButton("Xóa");
-        JButton clearButton = new JButton("Xóa Form");
+        buttonPanel = new JPanel(new FlowLayout());
+        addButton = new JButton("Thêm");
+        deleteButton = new JButton("Xóa");
+        clearButton = new JButton("Xóa Form");
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
@@ -488,7 +716,7 @@ public class QuanLyCuaHang extends JFrame {
 
         nhaCungCapTable.getSelectionModel().addListSelectionListener(e -> selectNhaCungCap());
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
         panel.add(southPanel, BorderLayout.SOUTH);
@@ -497,11 +725,11 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private JPanel createDanhMucPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(danhMucTable);
+        panel = new JPanel(new BorderLayout());
+        scrollPane = new JScrollPane(danhMucTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel("Mã Danh Mục:"));
@@ -512,10 +740,10 @@ public class QuanLyCuaHang extends JFrame {
         tenDanhMucField = new JTextField(15);
         formPanel.add(tenDanhMucField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Thêm");
-        JButton deleteButton = new JButton("Xóa");
-        JButton clearButton = new JButton("Xóa Form");
+        buttonPanel = new JPanel(new FlowLayout());
+        addButton = new JButton("Thêm");
+        deleteButton = new JButton("Xóa");
+        clearButton = new JButton("Xóa Form");
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
@@ -527,7 +755,7 @@ public class QuanLyCuaHang extends JFrame {
 
         danhMucTable.getSelectionModel().addListSelectionListener(e -> selectDanhMuc());
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
         panel.add(southPanel, BorderLayout.SOUTH);
@@ -536,11 +764,11 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private JPanel createKhachHangPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(khachHangTable);
+        panel = new JPanel(new BorderLayout());
+        scrollPane = new JScrollPane(khachHangTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel("Mã KH:"));
@@ -563,11 +791,11 @@ public class QuanLyCuaHang extends JFrame {
         diemTichLuyField = new JTextField(15);
         formPanel.add(diemTichLuyField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Thêm");
-        JButton updateButton = new JButton("Cập Nhật");
-        JButton deleteButton = new JButton("Xóa");
-        JButton clearButton = new JButton("Xóa Form");
+        buttonPanel = new JPanel(new FlowLayout());
+        addButton = new JButton("Thêm");
+        updateButton = new JButton("Cập Nhật");
+        deleteButton = new JButton("Xóa");
+        clearButton = new JButton("Xóa Form");
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -581,7 +809,7 @@ public class QuanLyCuaHang extends JFrame {
 
         khachHangTable.getSelectionModel().addListSelectionListener(e -> selectKhachHang());
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
         panel.add(southPanel, BorderLayout.SOUTH);
@@ -590,11 +818,11 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private JPanel createNhanVienPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(nhanVienTable);
+        panel = new JPanel(new BorderLayout());
+        scrollPane = new JScrollPane(nhanVienTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel("Mã NV:"));
@@ -613,11 +841,11 @@ public class QuanLyCuaHang extends JFrame {
         sdtNVField = new JTextField(15);
         formPanel.add(sdtNVField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Thêm");
-        JButton updateButton = new JButton("Cập Nhật");
-        JButton deleteButton = new JButton("Xóa");
-        JButton clearButton = new JButton("Xóa Form");
+        buttonPanel = new JPanel(new FlowLayout());
+        addButton = new JButton("Thêm");
+        updateButton = new JButton("Cập Nhật");
+        deleteButton = new JButton("Xóa");
+        clearButton = new JButton("Xóa Form");
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -631,7 +859,7 @@ public class QuanLyCuaHang extends JFrame {
 
         nhanVienTable.getSelectionModel().addListSelectionListener(e -> selectNhanVien());
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
         panel.add(southPanel, BorderLayout.SOUTH);
@@ -640,11 +868,11 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private JPanel createKhuyenMaiPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JScrollPane scrollPane = new JScrollPane(khuyenMaiTable);
+        panel = new JPanel(new BorderLayout());
+        scrollPane = new JScrollPane(khuyenMaiTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         formPanel.add(new JLabel("ID KM:"));
@@ -667,11 +895,11 @@ public class QuanLyCuaHang extends JFrame {
         ngayKetThucKMField = new JTextField(15);
         formPanel.add(ngayKetThucKMField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton addButton = new JButton("Thêm");
-        JButton updateButton = new JButton("Cập Nhật");
-        JButton deleteButton = new JButton("Xóa");
-        JButton clearButton = new JButton("Xóa Form");
+        buttonPanel = new JPanel(new FlowLayout());
+        addButton = new JButton("Thêm");
+        updateButton = new JButton("Cập Nhật");
+        deleteButton = new JButton("Xóa");
+        clearButton = new JButton("Xóa Form");
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -685,7 +913,7 @@ public class QuanLyCuaHang extends JFrame {
 
         khuyenMaiTable.getSelectionModel().addListSelectionListener(e -> selectKhuyenMai());
 
-        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel = new JPanel(new BorderLayout());
         southPanel.add(formPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.SOUTH);
         panel.add(southPanel, BorderLayout.SOUTH);
@@ -694,28 +922,21 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private JPanel createHoaDonPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        String[] hdColumns = {"Mã HD", "Ngày Tạo", "Khách Hàng", "Tổng Tiền"}; // Bỏ cột "Nhân Viên"
-        hoaDonTableModel = new DefaultTableModel(hdColumns, 0);
-        hoaDonTable = new JTable(hoaDonTableModel);
-        loadHoaDonTableData();
-
+        panel = new JPanel(new BorderLayout());
         addHoaDonContextMenu();
-
-        JScrollPane scrollPane = new JScrollPane(hoaDonTable);
+        scrollPane = new JScrollPane(hoaDonTable);
         panel.add(scrollPane, BorderLayout.CENTER);
-
         return panel;
     }
 
     private JPanel createBaoCaoPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        JTextArea baoCaoTextArea = new JTextArea();
+        panel = new JPanel(new BorderLayout());
+        baoCaoTextArea = new JTextArea();
         baoCaoTextArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(baoCaoTextArea);
+        scrollPane = new JScrollPane(baoCaoTextArea);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        ArrayList<BaoCao> dsBaoCao = baoCaoDao.findAll();
+        dsBaoCao = baoCaoDao.findAll();
         StringBuilder sb = new StringBuilder();
         for (BaoCao bc : dsBaoCao) {
             sb.append("ID: ").append(bc.getIdBaoCao())
@@ -726,9 +947,9 @@ public class QuanLyCuaHang extends JFrame {
         }
         baoCaoTextArea.setText(sb.toString());
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton doanhThuButton = new JButton("Báo Cáo Doanh Thu");
-        JButton tonKhoButton = new JButton("Báo Cáo Tồn Kho");
+        buttonPanel = new JPanel(new FlowLayout());
+        doanhThuButton = new JButton("Báo Cáo Doanh Thu");
+        tonKhoButton = new JButton("Báo Cáo Tồn Kho");
 
         doanhThuButton.addActionListener(e -> taoBaoCaoDoanhThu());
         tonKhoButton.addActionListener(e -> taoBaoCaoTonKho());
@@ -816,13 +1037,18 @@ public class QuanLyCuaHang extends JFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         for (HoaDon hd : dsHoaDon) {
             String khachHang = "Không xác định";
+            String nhanVien = "Không xác định"; 
             if (!hd.getDsSanPham().isEmpty() && hd.getDsSanPham().get(0).getKhachHang() != null) {
                 khachHang = hd.getDsSanPham().get(0).getKhachHang().getTenKH();
+            }
+            if (hd.getNhanVien() != null) { 
+                nhanVien = hd.getNhanVien().getTenNhanVien();
             }
             hoaDonTableModel.addRow(new Object[]{
                 hd.getMaHD(),
                 sdf.format(hd.getNgayTao()),
                 khachHang,
+                nhanVien,
                 hd.tinhTongTien()
             });
         }
@@ -847,11 +1073,24 @@ public class QuanLyCuaHang extends JFrame {
             String maSP = maSPField.getText();
             String tenSP = tenSPField.getText();
             int soLuong = Integer.parseInt(soLuongField.getText());
+            if (soLuong <= 0) {
+                JOptionPane.showMessageDialog(this, "Số lượng phải lớn hơn 0!");
+                return;
+            }
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date hsd = sdf.parse(hsdField.getText());
+            Date currentDate = new Date();
+            if (!hsd.after(currentDate)) {
+                JOptionPane.showMessageDialog(this, "Hạn sử dụng phải lớn hơn ngày hiện tại!");
+                return;
+            }
             String nccStr = (String) nhaCungCapComboBox.getSelectedItem();
             String maNCC = nccStr.split(" - ")[0];
             double gia = Double.parseDouble(giaField.getText());
+            if (gia <= 0) {
+                JOptionPane.showMessageDialog(this, "Giá phải lớn hơn 0!");
+                return;
+            }
             String dmStr = (String) danhMucComboBox.getSelectedItem();
             String maDanhMuc = dmStr.split(" - ")[0];
 
@@ -875,17 +1114,30 @@ public class QuanLyCuaHang extends JFrame {
             String maSP = maSPField.getText();
             String tenSP = tenSPField.getText();
             int soLuong = Integer.parseInt(soLuongField.getText());
+            if (soLuong <= 0) {
+                JOptionPane.showMessageDialog(this, "Số lượng phải lớn hơn 0!");
+                return;
+            }
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date hsd = sdf.parse(hsdField.getText());
+            Date currentDate = new Date();
+            if (!hsd.after(currentDate)) {
+                JOptionPane.showMessageDialog(this, "Hạn sử dụng phải lớn hơn ngày hiện tại!");
+                return;
+            }
             String nccStr = (String) nhaCungCapComboBox.getSelectedItem();
             String maNCC = nccStr.split(" - ")[0];
             double gia = Double.parseDouble(giaField.getText());
+            if (gia <= 0) {
+                JOptionPane.showMessageDialog(this, "Giá phải lớn hơn 0!");
+                return;
+            }
             String dmStr = (String) danhMucComboBox.getSelectedItem();
             String maDanhMuc = dmStr.split(" - ")[0];
 
-            NhaCungCap ncc = nhaCungCapDao.findByMaNCC(maNCC);
-            DanhMucSP dm = danhMucDao.findByMaDanhMuc(maDanhMuc);
-            SanPham sp = new SanPham(maSP, tenSP, soLuong, hsd, ncc, gia, dm);
+            ncc = nhaCungCapDao.findByMaNCC(maNCC);
+            dm = danhMucDao.findByMaDanhMuc(maDanhMuc);
+            sp = new SanPham(maSP, tenSP, soLuong, hsd, ncc, gia, dm);
             dsSanPhamDao.capNhatSanPham(sp);
             dsSanPham.setDsSanPham(sanPhamDao.findAll());
             loadSanPhamTableData();
@@ -949,7 +1201,7 @@ public class QuanLyCuaHang extends JFrame {
         try {
             String maNCC = maNCCFieldForm.getText();
             String tenNCC = tenNCCFieldForm.getText();
-            NhaCungCap ncc = new NhaCungCap(maNCC, tenNCC);
+            ncc = new NhaCungCap(maNCC, tenNCC);
             nhaCungCapDao.themNhaCungCap(ncc);
             dsNhaCungCap.add(ncc);
             loadNhaCungCapTableData();
@@ -995,7 +1247,7 @@ public class QuanLyCuaHang extends JFrame {
         try {
             String maDanhMuc = maDanhMucField.getText();
             String tenDanhMuc = tenDanhMucField.getText();
-            DanhMucSP dm = new DanhMucSP(maDanhMuc, tenDanhMuc);
+            dm = new DanhMucSP(maDanhMuc, tenDanhMuc);
             danhMucDao.themDanhMuc(dm);
             dsDanhMuc.add(dm);
             loadDanhMucTableData();
@@ -1044,7 +1296,7 @@ public class QuanLyCuaHang extends JFrame {
             String sdt = sdtKHField.getText();
             String email = emailKHField.getText();
             int diemTichLuy = Integer.parseInt(diemTichLuyField.getText());
-            KhachHang kh = new KhachHang(maKH, tenKH, sdt, email, diemTichLuy);
+            kh = new KhachHang(maKH, tenKH, sdt, email, diemTichLuy);
             khachHangDao.themKhachHang(kh);
             dsKhachHang.add(kh);
             loadKhachHangTableData();
@@ -1064,7 +1316,7 @@ public class QuanLyCuaHang extends JFrame {
             String sdt = sdtKHField.getText();
             String email = emailKHField.getText();
             int diemTichLuy = Integer.parseInt(diemTichLuyField.getText());
-            KhachHang kh = new KhachHang(maKH, tenKH, sdt, email, diemTichLuy);
+            kh = new KhachHang(maKH, tenKH, sdt, email, diemTichLuy);
             khachHangDao.capNhatKhachHang(kh);
             dsKhachHang = khachHangDao.findAll();
             loadKhachHangTableData();
@@ -1114,7 +1366,7 @@ public class QuanLyCuaHang extends JFrame {
             String tenNV = tenNVField.getText();
             String chucVu = chucVuField.getText();
             String sdt = sdtNVField.getText();
-            NhanVien nv = new NhanVien(maNV, tenNV, chucVu, sdt);
+            nv = new NhanVien(maNV, tenNV, chucVu, sdt);
             nhanVienDao.themNhanVien(nv);
             dsNhanVien.add(nv);
             loadNhanVienTableData();
@@ -1133,7 +1385,7 @@ public class QuanLyCuaHang extends JFrame {
             String tenNV = tenNVField.getText();
             String chucVu = chucVuField.getText();
             String sdt = sdtNVField.getText();
-            NhanVien nv = new NhanVien(maNV, tenNV, chucVu, sdt);
+            nv = new NhanVien(maNV, tenNV, chucVu, sdt);
             nhanVienDao.capNhatNhanVien(nv);
             dsNhanVien = nhanVienDao.findAll();
             loadNhanVienTableData();
@@ -1183,7 +1435,7 @@ public class QuanLyCuaHang extends JFrame {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date ngayBatDau = sdf.parse(ngayBatDauKMField.getText());
             Date ngayKetThuc = sdf.parse(ngayKetThucKMField.getText());
-            KhuyenMai km = new KhuyenMai(idKM, moTa, giaTriGiam, ngayBatDau, ngayKetThuc);
+            km = new KhuyenMai(idKM, moTa, giaTriGiam, ngayBatDau, ngayKetThuc);
             khuyenMaiDao.themKhuyenMai(km);
             dsKhuyenMai.add(km);
             loadKhuyenMaiTableData();
@@ -1204,7 +1456,7 @@ public class QuanLyCuaHang extends JFrame {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Date ngayBatDau = sdf.parse(ngayBatDauKMField.getText());
             Date ngayKetThuc = sdf.parse(ngayKetThucKMField.getText());
-            KhuyenMai km = new KhuyenMai(idKM, moTa, giaTriGiam, ngayBatDau, ngayKetThuc);
+            km = new KhuyenMai(idKM, moTa, giaTriGiam, ngayBatDau, ngayKetThuc);
             khuyenMaiDao.capNhatKhuyenMai(km);
             dsKhuyenMai = khuyenMaiDao.findAll();
             loadKhuyenMaiTableData();
@@ -1247,30 +1499,9 @@ public class QuanLyCuaHang extends JFrame {
             ngayKetThucKMField.setText((String) khuyenMaiTableModel.getValueAt(selectedRow, 4));
         }
     }
-
-    private void themHoaDon() {
-        try {
-            String maHD = HoaDon.taoMaHoaDon(hoaDonDao);
-            HoaDon hd = new HoaDon(maHD);
-            hoaDonDao.save(hd);
-            dsHoaDon.add(hd);
-            loadHoaDonTableData();
-            clearHoaDonForm();
-            JOptionPane.showMessageDialog(this, "Thêm hóa đơn thành công!");
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi định dạng dữ liệu: " + e.getMessage());
-        }
-    }
-
-    private void clearHoaDonForm() {
-        maHDField.setText("");
-        ngayTaoHDField.setText("");
-    }
-
+    
     private void xemTheoDanhMuc() {
-        JComboBox<String> danhMucCombo = new JComboBox<>();
+        danhMucCombo = new JComboBox<>();
         for (DanhMucSP dm : dsDanhMuc) {
             danhMucCombo.addItem(dm.getMaDanhMuc() + " - " + dm.getTenDanhMuc());
         }
@@ -1285,8 +1516,8 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private void taoBaoCaoDoanhThu() {
-        JTextField tuNgayField = new JTextField(15);
-        JTextField denNgayField = new JTextField(15);
+        tuNgayField = new JTextField(15);
+        denNgayField = new JTextField(15);
 
         JPanel panel = new JPanel(new GridLayout(2, 2));
         panel.add(new JLabel("Từ Ngày (dd/MM/yyyy):"));
@@ -1300,7 +1531,7 @@ public class QuanLyCuaHang extends JFrame {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 Date tuNgay = sdf.parse(tuNgayField.getText());
                 Date denNgay = sdf.parse(denNgayField.getText());
-                BaoCao bc = new BaoCao("BC" + System.currentTimeMillis(), "DoanhThu", "Báo Cáo Doanh Thu");
+                bc = new BaoCao("BC" + System.currentTimeMillis(), "DoanhThu", "Báo Cáo Doanh Thu");
                 bc.taoBaoCaoDoanhThu(tuNgay, denNgay);
                 baoCaoDao.save(bc);
                 JOptionPane.showMessageDialog(this, "Tạo báo cáo doanh thu thành công!");
@@ -1315,7 +1546,7 @@ public class QuanLyCuaHang extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, "Tạo báo cáo tồn kho?", "Báo Cáo Tồn Kho", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                BaoCao bc = new BaoCao("BC" + System.currentTimeMillis(), "TonKho", "Báo Cáo Tồn Kho");
+                bc = new BaoCao("BC" + System.currentTimeMillis(), "TonKho", "Báo Cáo Tồn Kho");
                 bc.taoBaoCaoTonKho();
                 baoCaoDao.save(bc);
                 JOptionPane.showMessageDialog(this, "Tạo báo cáo tồn kho thành công!");
@@ -1327,31 +1558,69 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     void xemChiTietHoaDon(String maHD) {
-        HoaDon hd = hoaDonDao.findByMaHD(maHD);
+        hd = hoaDonDao.findByMaHD(maHD);
         if (hd != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             StringBuilder sb = new StringBuilder();
             sb.append("Mã Hóa Đơn: ").append(hd.getMaHD()).append("\n");
             sb.append("Ngày Tạo: ").append(sdf.format(hd.getNgayTao())).append("\n\n");
+            String tenKH = "Không xác định";
+            if (!hd.getDsSanPham().isEmpty() && hd.getDsSanPham().get(0).getKhachHang() != null) {
+                tenKH = hd.getDsSanPham().get(0).getKhachHang().getTenKH();
+            }
+            sb.append("Tên Khách Hàng: ").append(tenKH).append("\n\n");
             sb.append("Chi Tiết Sản Phẩm:\n");
-            double tongTien = 0;
+            double tongTienTruocGiam = 0;
+            int diemSuDung = hd.getDiemSuDung();
+            String idKM = null;
+
             for (CTHoaDon ct : hd.getDsSanPham()) {
-                SanPham sp = ct.getSanPham();
+                sp = ct.getSanPham();
                 int soLuong = ct.getSoLuong();
                 double donGia = ct.getDonGia();
-                double thanhTien = donGia * soLuong;
-                tongTien += thanhTien;
+                double thanhTien = ct.getSoLuong()*ct.getDonGia(); 
+                double thanhTienTruocKM = soLuong * donGia; 
+                tongTienTruocGiam += thanhTienTruocKM; 
+                if (ct.getIdKM() != null) {
+                    idKM = ct.getIdKM();
+                }
                 sb.append("- Tên SP: ").append(sp.getTenSP())
                   .append(", Số Lượng: ").append(soLuong)
                   .append(", Đơn Giá: ").append(donGia)
                   .append(", Thành Tiền: ").append(thanhTien)
                   .append("\n");
             }
-            sb.append("\nTổng Tiền: ").append(tongTien);
 
-            JTextArea textArea = new JTextArea(sb.toString());
+            double giamGiaDiem = diemSuDung * 1000; 
+            double giamGiaKM = 0;
+            if (idKM != null) {
+                km = khuyenMaiDao.timKhuyenMai(idKM);
+                if (km != null && km.kiemTraHieuLuc()) {
+                    for (CTHoaDon ct : hd.getDsSanPham()) {
+                        double baseTotal = ct.getSoLuong() * ct.getDonGia();
+                        if (km.getGiaTriGiam() < 1) {
+                            giamGiaKM += baseTotal * km.getGiaTriGiam();
+                        } else {
+                            giamGiaKM += km.getGiaTriGiam();
+                        }
+                    }
+                }
+            }
+
+            double tongTienSauGiam = hd.tinhTongTien(); 
+
+            sb.append("\nĐiểm Tích Lũy Sử Dụng: ").append(diemSuDung)
+              .append(" (Giảm: ").append(giamGiaDiem).append(" VNĐ)\n");
+            sb.append("Khuyến Mãi Áp Dụng: ").append(idKM != null ? idKM : "Không có");
+            if (idKM != null) {
+                sb.append(" (Giảm: ").append(giamGiaKM).append(" VNĐ)");
+            }
+            sb.append("\nTổng Tiền Trước Giảm: ").append(tongTienTruocGiam).append(" VNĐ\n");
+            sb.append("Tổng Tiền Sau Giảm: ").append(tongTienSauGiam).append(" VNĐ");
+
+            textArea = new JTextArea(sb.toString());
             textArea.setEditable(false);
-            JScrollPane scrollPane = new JScrollPane(textArea);
+            scrollPane = new JScrollPane(textArea);
             scrollPane.setPreferredSize(new Dimension(500, 300));
             JOptionPane.showMessageDialog(this, scrollPane, "Chi Tiết Hóa Đơn", JOptionPane.INFORMATION_MESSAGE);
         } else {
@@ -1432,16 +1701,16 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private void addSanPhamContextMenu() {
-        JPopupMenu contextMenu = new JPopupMenu();
-        JMenuItem nhapKhoItem = new JMenuItem("Nhập Kho");
-        JMenuItem xuatKhoItem = new JMenuItem("Xuất Kho");
+        contextMenu = new JPopupMenu();
+        nhapKhoItem = new JMenuItem("Nhập Kho");
+        xuatKhoItem = new JMenuItem("Xuất Kho");
 
         nhapKhoItem.addActionListener(e -> {
             int selectedRow = sanPhamTable.getSelectedRow();
             if (selectedRow >= 0) {
                 String maSP = (String) sanPhamTableModel.getValueAt(selectedRow, 0);
-                JTextField soLuongField = new JTextField(10);
-                JPanel panel = new JPanel();
+                soLuongField = new JTextField(10);
+                panel = new JPanel();
                 panel.add(new JLabel("Số Lượng Nhập:"));
                 panel.add(soLuongField);
 
@@ -1466,8 +1735,8 @@ public class QuanLyCuaHang extends JFrame {
             int selectedRow = sanPhamTable.getSelectedRow();
             if (selectedRow >= 0) {
                 String maSP = (String) sanPhamTableModel.getValueAt(selectedRow, 0);
-                JTextField soLuongField = new JTextField(10);
-                JPanel panel = new JPanel();
+                soLuongField = new JTextField(10);
+                panel = new JPanel();
                 panel.add(new JLabel("Số Lượng Xuất:"));
                 panel.add(soLuongField);
 
@@ -1495,15 +1764,15 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private void addKhachHangContextMenu() {
-        JPopupMenu contextMenu = new JPopupMenu();
-        JMenuItem congDiemItem = new JMenuItem("Cộng Điểm Tích Lũy");
+        contextMenu = new JPopupMenu();
+        congDiemItem = new JMenuItem("Cộng Điểm Tích Lũy");
 
         congDiemItem.addActionListener(e -> {
             int selectedRow = khachHangTable.getSelectedRow();
             if (selectedRow >= 0) {
                 String maKH = (String) khachHangTableModel.getValueAt(selectedRow, 0);
-                JTextField diemField = new JTextField(10);
-                JPanel panel = new JPanel();
+                diemField = new JTextField(10);
+                panel = new JPanel();
                 panel.add(new JLabel("Điểm Cộng:"));
                 panel.add(diemField);
 
@@ -1511,7 +1780,7 @@ public class QuanLyCuaHang extends JFrame {
                 if (result == JOptionPane.OK_OPTION) {
                     try {
                         int diem = Integer.parseInt(diemField.getText());
-                        KhachHang kh = khachHangDao.findByMaKH(maKH);
+                        kh = khachHangDao.findByMaKH(maKH);
                         if (kh != null) {
                             kh.congDiemTichLuy(diem);
                             khachHangDao.capNhatKhachHang(kh);
@@ -1535,8 +1804,8 @@ public class QuanLyCuaHang extends JFrame {
     }
 
     private void addHoaDonContextMenu() {
-        JPopupMenu contextMenu = new JPopupMenu();
-        JMenuItem xemChiTietItem = new JMenuItem("Xem Chi Tiết");
+        contextMenu = new JPopupMenu();
+        xemChiTietItem = new JMenuItem("Xem Chi Tiết");
 
         xemChiTietItem.addActionListener(e -> {
             int selectedRow = hoaDonTable.getSelectedRow();
@@ -1550,9 +1819,5 @@ public class QuanLyCuaHang extends JFrame {
 
         contextMenu.add(xemChiTietItem);
         hoaDonTable.setComponentPopupMenu(contextMenu);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new QuanLyCuaHang().setVisible(true));
     }
 }
