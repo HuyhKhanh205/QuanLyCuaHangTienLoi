@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class SanPham_Dao {
-
+	private ArrayList<SanPham> dsSanPham;
+	
     public void save(SanPham sp) {
         if (findByMaSP(sp.getMaSP()) != null) {
             throw new IllegalArgumentException("Mã sản phẩm đã tồn tại.");
@@ -62,7 +63,7 @@ public class SanPham_Dao {
     }
 
     public ArrayList<SanPham> findAll() {
-        ArrayList<SanPham> dsSanPham = new ArrayList<>();
+        dsSanPham = new ArrayList<>();
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "SELECT sp.MaSP, sp.TenSP, sp.SoLuongTon, sp.HSD, sp.MaNCC, sp.Gia, sp.MaDanhMuc, ncc.TenNCC, dm.TenDanhMuc " +
                          "FROM SanPham sp " +

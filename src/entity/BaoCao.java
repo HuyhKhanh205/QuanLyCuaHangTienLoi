@@ -101,8 +101,6 @@ public class BaoCao {
         if (dinhDang == null || dinhDang.trim().isEmpty()) {
             throw new IllegalArgumentException("Định dạng báo cáo không được rỗng.");
         }
-        // Logic xuất báo cáo (không lưu file, chỉ trả về nội dung)
-        // Có thể mở rộng để hỗ trợ các định dạng như PDF, Excel trong tương lai
         noiDung += "\nĐịnh dạng xuất: " + dinhDang;
     }
 
@@ -120,7 +118,6 @@ public class BaoCao {
                '}';
     }
 
-    // Getters and Setters
     public String getIdBaoCao() {
         return idBaoCao;
     }

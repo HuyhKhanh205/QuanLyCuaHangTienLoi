@@ -29,13 +29,6 @@ public class SanPham {
         }
     }
 
-    public double tinhGiaSauGiam(double giamGia) {
-        if (giamGia < 0 || giamGia > 100) {
-            throw new IllegalArgumentException("Giảm giá phải từ 0 đến 100.");
-        }
-        return gia - (gia * giamGia / 100);
-    }
-
     public boolean kiemTraHSD() {
         return new Date().before(HSD);
     }

@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class BaoCao_Dao {
+	private ArrayList<BaoCao> dsBaoCao;
+	private BaoCao bc;
     public void save(BaoCao bc) {
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "INSERT INTO BaoCao (IdBaoCao, LoaiBaoCao, TenBaoCao, NoiDung) VALUES (?, ?, ?, ?)";
@@ -24,13 +26,13 @@ public class BaoCao_Dao {
     }
 
     public ArrayList<BaoCao> findAll() {
-        ArrayList<BaoCao> dsBaoCao = new ArrayList<>();
+        dsBaoCao = new ArrayList<>();
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "SELECT IdBaoCao, LoaiBaoCao, TenBaoCao, NoiDung FROM BaoCao";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                BaoCao bc = new BaoCao(
+                	bc = new BaoCao(
                     rs.getString("IdBaoCao"),
                     rs.getString("LoaiBaoCao"),
                     rs.getString("TenBaoCao")

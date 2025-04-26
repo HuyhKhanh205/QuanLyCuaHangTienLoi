@@ -23,24 +23,6 @@ public class KhuyenMai {
         return now.after(ngayBatDau) && now.before(ngayKetThuc);
     }
 
-    public void apDungKhuyenMai(HoaDon hd) {
-        if (kiemTraHieuLuc() && hd != null) {
-            for (CTHoaDon ct : hd.getDsSanPham()) {
-                double donGiaGiam;
-                if (giaTriGiam < 1) {
-                    // Giảm theo phần trăm (0.X)
-                    donGiaGiam = ct.getDonGia() * (1 - giaTriGiam);
-                } else {
-                    // Giảm trực tiếp
-                    donGiaGiam = ct.getDonGia() - giaTriGiam;
-                    if (donGiaGiam < 0) donGiaGiam = 0; // Đảm bảo đơn giá không âm
-                }
-                ct.setDonGia(donGiaGiam);
-                ct.capNhatSoLuong(ct.getSoLuong()); // Cập nhật lại tổng tiền
-            }
-        }
-    }
-
     @Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -54,7 +36,6 @@ public class KhuyenMai {
                '}';
     }
 
-    // Getters and Setters
     public String getIdKM() { return idKM; }
     public void setIdKM(String idKM) {
         if (idKM == null || idKM.trim().isEmpty()) {

@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class KhuyenMai_Dao {
+	private ArrayList<KhuyenMai> dsKhuyenMai;
+	
 	public void themKhuyenMai(KhuyenMai km) {
 	    if (timKhuyenMai(km.getIdKM()) != null) {
 	        throw new IllegalArgumentException("Mã khuyến mãi đã tồn tại.");
@@ -78,7 +80,7 @@ public class KhuyenMai_Dao {
     }
 
     public ArrayList<KhuyenMai> findAll() {
-        ArrayList<KhuyenMai> dsKhuyenMai = new ArrayList<>();
+        dsKhuyenMai = new ArrayList<>();
         try (Connection conn = ConnectDB.getConnection()) {
             String sql = "SELECT IdKM, MoTa, GiaTriGiam, NgayBatDau, NgayKetThuc FROM KhuyenMai";
             PreparedStatement stmt = conn.prepareStatement(sql);

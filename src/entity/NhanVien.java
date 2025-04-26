@@ -13,11 +13,7 @@ public class NhanVien {
         setSdt(sdt);
     }
 
-    public NhanVien() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public boolean kiemTraPhanQuyen(String chucVu) {
+    public boolean kiemTraPhanQuyen(String chucVu) {
         return this.chucVu != null && this.chucVu.equals(chucVu);
     }
 
@@ -26,7 +22,6 @@ public class NhanVien {
         return maNV + "," + tenNhanVien + "," + chucVu + "," + sdt;
     }
 
-    // Getters and Setters (giữ nguyên)
     public String getMaNV() { return maNV; }
     public void setMaNV(String maNV) {
         if (maNV == null || maNV.trim().isEmpty()) {

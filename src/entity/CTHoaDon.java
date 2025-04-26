@@ -1,5 +1,7 @@
 package entity;
 
+import dao.KhuyenMai_Dao;
+
 public class CTHoaDon {
     private HoaDon hoaDon;
     private SanPham sanPham;
@@ -7,6 +9,7 @@ public class CTHoaDon {
     private double donGia;
     private double tongTien;
     private KhachHang khachHang;
+    private String idKM; 
 
     public CTHoaDon(HoaDon hoaDon, SanPham sanPham, int soLuong, double donGia, KhachHang khachHang) {
         this.hoaDon = hoaDon;
@@ -14,6 +17,7 @@ public class CTHoaDon {
         this.soLuong = soLuong;
         this.donGia = donGia;
         this.khachHang = khachHang;
+        this.idKM = null;
     }
     public CTHoaDon(HoaDon hoaDon, SanPham sanPham, int soLuong, double donGia) {
         this(hoaDon, sanPham, soLuong, donGia, null);
@@ -24,7 +28,25 @@ public class CTHoaDon {
     }
 
     public double tinhTongTien() {
-        return soLuong * donGia;
+        double baseTotal = soLuong * donGia; 
+        double finalTotal = baseTotal;
+
+        if (idKM != null) {
+            KhuyenMai_Dao khuyenMaiDao = new KhuyenMai_Dao();
+            KhuyenMai km = khuyenMaiDao.timKhuyenMai(idKM);
+            if (km != null && km.kiemTraHieuLuc()) {
+                if (km.getGiaTriGiam() < 1) {
+                    finalTotal = baseTotal * (1 - km.getGiaTriGiam());
+                } else { 
+                    finalTotal = baseTotal - km.getGiaTriGiam();
+                }
+            }
+        }
+
+        if (finalTotal < 0) finalTotal = 0;
+
+        this.tongTien = finalTotal;
+        return finalTotal;
     }
 
     public String layThongTinCTHoaDon() {
@@ -33,10 +55,9 @@ public class CTHoaDon {
 
     @Override
     public String toString() {
-        return hoaDon.layThongTinHoaDon() + "," + sanPham.getMaSP() + "," + soLuong + "," + donGia + "," + tongTien;
+        return hoaDon.layThongTinHoaDon() + "," + sanPham.getMaSP() + "," + soLuong + "," + donGia + "," + tongTien + "," + (idKM != null ? idKM : "Không có KM");
     }
 
-    // Getters and Setters (giữ nguyên)
     public HoaDon getHoaDon() { 
     	return hoaDon; 
     	}
@@ -87,5 +108,13 @@ public class CTHoaDon {
 
     public void setKhachHang(KhachHang khachHang) {
         this.khachHang = khachHang;
+    }
+
+    public String getIdKM() {
+        return idKM;
+    }
+
+    public void setIdKM(String idKM) {
+        this.idKM = idKM;
     }
 }
