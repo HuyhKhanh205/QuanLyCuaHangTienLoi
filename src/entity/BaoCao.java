@@ -14,11 +14,13 @@ public class BaoCao {
     private String loaiBaoCao;
     private String tenBaoCao;
     private String noiDung;
+    private NhanVien nhanVien; 
 
-    public BaoCao(String idBaoCao, String loaiBaoCao, String tenBaoCao) {
+    public BaoCao(String idBaoCao, String loaiBaoCao, String tenBaoCao, NhanVien nhanVien) {
         setIdBaoCao(idBaoCao);
         setLoaiBaoCao(loaiBaoCao);
         setTenBaoCao(tenBaoCao);
+        setNhanVien(nhanVien);
         this.noiDung = "";
     }
 
@@ -114,6 +116,7 @@ public class BaoCao {
                "idBaoCao='" + idBaoCao + '\'' +
                ", loaiBaoCao='" + loaiBaoCao + '\'' +
                ", tenBaoCao='" + tenBaoCao + '\'' +
+               ", nhanVien=" + (nhanVien != null ? nhanVien.getTenNhanVien() : "null") +
                ", noiDung='" + noiDung + '\'' +
                '}';
     }
@@ -160,5 +163,16 @@ public class BaoCao {
             throw new IllegalArgumentException("Nội dung báo cáo không được rỗng.");
         }
         this.noiDung = noiDung;
+    }
+
+    public NhanVien getNhanVien() {
+        return nhanVien;
+    }
+
+    public void setNhanVien(NhanVien nhanVien) {
+        if (nhanVien == null) {
+            throw new IllegalArgumentException("Nhân viên không được rỗng.");
+        }
+        this.nhanVien = nhanVien;
     }
 }

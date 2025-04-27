@@ -3,6 +3,7 @@ package gui;
 import dao.*;
 import entity.*;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -11,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class QuanLyCuaHang extends JFrame {
@@ -72,6 +74,7 @@ public class QuanLyCuaHang extends JFrame {
 	private boolean isKhuyenMaiApplied = false;
 	private boolean isDiemUsed = false;
 	private int diemSuDungTemp = 0;
+	private double SumMoney = 0;
 	private JLabel tongTienLabel;
 	
 	public QuanLyCuaHang(NhanVien nv) {
@@ -89,11 +92,13 @@ public class QuanLyCuaHang extends JFrame {
 
     private void initUI() {
     	setTitle("Quản Lý Cửa Hàng - " + "(" + loggedInNhanVien.getChucVu() + " - " + loggedInNhanVien.getTenNhanVien() + ")");
-        setSize(1024, 600);
+        setSize(1200, 700);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         menuBar = new JMenuBar();
+        menuBar.setPreferredSize(new Dimension(0,30));
+        menuBar.setBackground(new Color(135,216,250));
 
         // Menu Bán Hàng
         banHangMenu = new JMenu("Bán Hàng");
@@ -127,6 +132,21 @@ public class QuanLyCuaHang extends JFrame {
 
         hoaDonItem = new JMenuItem("Hóa Đơn");
         hoaDonItem.addActionListener(e -> showHoaDonPanel());
+        
+        sanPhamItem.setBorder(new EmptyBorder(10,10,10,10));
+        sanPhamItem.setFont(new Font("Time new Roman",Font.PLAIN,14));
+        nhaCungCapItem.setBorder(new EmptyBorder(10,10,10,10));
+        nhaCungCapItem.setFont(new Font("Time new Roman",Font.PLAIN,14));
+        danhMucItem.setBorder(new EmptyBorder(10,10,10,10));
+        danhMucItem.setFont(new Font("Time new Roman",Font.PLAIN,14));
+        khachHangItem.setBorder(new EmptyBorder(10,10,10,10));
+        khachHangItem.setFont(new Font("Time new Roman",Font.PLAIN,14));
+        nhanVienItem.setBorder(new EmptyBorder(10,10,10,10));
+        nhanVienItem.setFont(new Font("Time new Roman",Font.PLAIN,14));
+        khuyenMaiItem.setBorder(new EmptyBorder(10,10,10,10));
+        khuyenMaiItem.setFont(new Font("Time new Roman",Font.PLAIN,14));
+        hoaDonItem.setBorder(new EmptyBorder(10,10,10,10));
+        hoaDonItem.setFont(new Font("Time new Roman",Font.PLAIN,14));
 
         // Menu Báo Cáo
         baoCaoMenu = new JMenu("Báo Cáo");
@@ -135,6 +155,7 @@ public class QuanLyCuaHang extends JFrame {
                 showBaoCaoPanel();
             }
         });
+
 
         // Thêm các mục con vào menu Quản Lý
         quanLyMenu.add(sanPhamItem);
@@ -149,6 +170,18 @@ public class QuanLyCuaHang extends JFrame {
         menuBar.add(banHangMenu);
         menuBar.add(quanLyMenu);
         menuBar.add(baoCaoMenu);
+        banHangMenu.setBorder(new EmptyBorder(0,20,0,20));
+        quanLyMenu.setBorder(new EmptyBorder(0,20,0,20));
+        baoCaoMenu.setBorder(new EmptyBorder(0,20,0,20));
+        banHangMenu.setFont(new Font("Roboto",Font.BOLD|Font.ITALIC,16));
+        quanLyMenu.setFont(new Font("Roboto",Font.BOLD|Font.ITALIC,16));
+        baoCaoMenu.setFont(new Font("Roboto",Font.BOLD|Font.ITALIC,16));
+        banHangMenu.setForeground(new Color(230,230,230));
+        quanLyMenu.setForeground(new Color(230,230,230));
+        baoCaoMenu.setForeground(new Color(230,230,230));
+        
+
+      
         setJMenuBar(menuBar);
 
         mainPanel = new JPanel(new BorderLayout());
@@ -157,36 +190,92 @@ public class QuanLyCuaHang extends JFrame {
         String[] spColumns = {"Mã SP", "Tên SP", "Số Lượng", "HSD", "Nhà Cung Cấp", "Giá", "Loại SP"};
         sanPhamTableModel = new DefaultTableModel(spColumns, 0);
         sanPhamTable = new JTable(sanPhamTableModel);
+        JScrollPane scrollPane = new JScrollPane(sanPhamTable,
+        	    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        	    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        sanPhamTable.setGridColor(new Color(250,250,250));
+        sanPhamTable.getTableHeader().setBackground(new Color(230,190,200));
+        sanPhamTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        sanPhamTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        sanPhamTable.setRowHeight(30);
         loadSanPhamTableData();
 
         String[] nccColumns = {"Mã NCC", "Tên NCC"};
         nhaCungCapTableModel = new DefaultTableModel(nccColumns, 0);
         nhaCungCapTable = new JTable(nhaCungCapTableModel);
+        JScrollPane scrollPane2 = new JScrollPane(nhaCungCapTable,
+        	    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        	    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        nhaCungCapTable.setGridColor(new Color(250,250,250));
+        nhaCungCapTable.getTableHeader().setBackground(new Color(230,190,200));
+        nhaCungCapTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        nhaCungCapTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        nhaCungCapTable.setRowHeight(30);
         loadNhaCungCapTableData();
 
         String[] dmColumns = {"Mã Danh Mục", "Tên Danh Mục"};
         danhMucTableModel = new DefaultTableModel(dmColumns, 0);
         danhMucTable = new JTable(danhMucTableModel);
+        JScrollPane scrollPane3 = new JScrollPane(danhMucTable,
+        	    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        	    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        danhMucTable.setGridColor(new Color(250,250,250));
+        danhMucTable.getTableHeader().setBackground(new Color(230,190,200));
+        danhMucTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        danhMucTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        danhMucTable.setRowHeight(30);
         loadDanhMucTableData();
 
         String[] khColumns = {"Mã KH", "Tên KH", "Số Điện Thoại", "Email", "Điểm Tích Lũy"};
         khachHangTableModel = new DefaultTableModel(khColumns, 0);
         khachHangTable = new JTable(khachHangTableModel);
+        JScrollPane scrollPane4 = new JScrollPane(khachHangTable,
+        	    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        	    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        khachHangTable.setGridColor(new Color(250,250,250));
+        khachHangTable.getTableHeader().setBackground(new Color(230,190,200));
+        khachHangTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        khachHangTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        khachHangTable.setRowHeight(30);
         loadKhachHangTableData();
 
         String[] nvColumns = {"Mã NV", "Tên NV", "Chức Vụ", "Số Điện Thoại"};
         nhanVienTableModel = new DefaultTableModel(nvColumns, 0);
         nhanVienTable = new JTable(nhanVienTableModel);
+        JScrollPane scrollPane5 = new JScrollPane(nhanVienTable,
+        	    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        	    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        nhanVienTable.setGridColor(new Color(250,250,250));
+        nhanVienTable.getTableHeader().setBackground(new Color(230,190,200));
+        nhanVienTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        nhanVienTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        nhanVienTable.setRowHeight(30);
         loadNhanVienTableData();
 
         String[] kmColumns = {"ID KM", "Mô Tả", "Giá Trị Giảm", "Ngày Bắt Đầu", "Ngày Kết Thúc"};
         khuyenMaiTableModel = new DefaultTableModel(kmColumns, 0);
         khuyenMaiTable = new JTable(khuyenMaiTableModel);
+        JScrollPane scrollPane6 = new JScrollPane(khuyenMaiTable,
+        	    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        	    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        khuyenMaiTable.setGridColor(new Color(250,250,250));
+        khuyenMaiTable.getTableHeader().setBackground(new Color(230,190,200));
+        khuyenMaiTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        khuyenMaiTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        khuyenMaiTable.setRowHeight(30);
         loadKhuyenMaiTableData();
 
         String[] hdColumns = {"Mã HD", "Ngày Tạo", "Khách Hàng", "Nhân Viên", "Tổng Tiền"};
         hoaDonTableModel = new DefaultTableModel(hdColumns, 0);
         hoaDonTable = new JTable(hoaDonTableModel);
+        JScrollPane scrollPane7 = new JScrollPane(hoaDonTable,
+        	    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+        	    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        hoaDonTable.setGridColor(new Color(250,250,250));
+        hoaDonTable.getTableHeader().setBackground(new Color(230,190,200));
+        hoaDonTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        hoaDonTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        hoaDonTable.setRowHeight(30);
         loadHoaDonTableData();
 
         currentPanel = createSanPhamPanel();
@@ -202,9 +291,14 @@ public class QuanLyCuaHang extends JFrame {
         String[] columns = {"Mã SP", "Tên SP", "Số Lượng", "Đơn Giá", "Thành Tiền"};
         banHangTableModel = new DefaultTableModel(columns, 0);
         banHangTable = new JTable(banHangTableModel);
+        banHangTable.setGridColor(new Color(250,250,250));
+        banHangTable.getTableHeader().setBackground(new Color(230,190,200));
+        banHangTable.getTableHeader().setFont(new Font("Arial",Font.BOLD,13));
+        banHangTable.getTableHeader().setBorder(new EmptyBorder(20,20,20,20));
+        banHangTable.setRowHeight(30);
         scrollPane = new JScrollPane(banHangTable);
         panel.add(scrollPane, BorderLayout.CENTER);
-    
+
         tongTienLabel = new JLabel("Tổng tiền: 0 VNĐ");
         tongTienLabel.setFont(new Font("Arial", Font.BOLD, 16));
         tongTienLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -215,8 +309,7 @@ public class QuanLyCuaHang extends JFrame {
         tableWithTotalPanel.add(tongTienLabel, BorderLayout.SOUTH);
 
         panel.add(tableWithTotalPanel, BorderLayout.CENTER);
-
-
+        
         formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -233,10 +326,10 @@ public class QuanLyCuaHang extends JFrame {
         formPanel.add(sanPhamComboBox);
 
         formPanel.add(new JLabel("Số Lượng:"));
-        soLuongField = new JTextField("1", 10);
+        soLuongField = new JTextField(10);
         formPanel.add(soLuongField);
 
-        formPanel.add(new JLabel("Tổng Tiền:"));
+        formPanel.add(new JLabel("Thành Tiền:"));
         tongTienField = new JTextField(10);
         tongTienField.setEditable(false);
         formPanel.add(tongTienField);
@@ -282,14 +375,35 @@ public class QuanLyCuaHang extends JFrame {
         });
 
         buttonPanel = new JPanel(new FlowLayout());
-        themSPButton = new JButton("Thêm Sản Phẩm");
-        xoaSPButton = new JButton("Xóa Sản Phẩm");
-        taoHoaDonButton = new JButton("Tạo Hóa Đơn");
-        themKhachHangButton = new JButton("Thêm Khách Hàng");
-        clearButton = new JButton("Xóa Form");
-        suDungDiemButton = new JButton("Sử Dụng Điểm");
-        apDungKMButton = new JButton("Áp Dụng Khuyến Mãi");
         
+        themSPButton = new JButton("Thêm Sản Phẩm");
+        themSPButton.setBackground(new Color(135,230,250));
+        themSPButton.setBorder(new EmptyBorder(10,10,10,10));
+        
+        xoaSPButton = new JButton("Xóa Sản Phẩm");
+        xoaSPButton.setBackground(new Color(135,230,250));
+        xoaSPButton.setBorder(new EmptyBorder(10,10,10,10));
+        
+        taoHoaDonButton = new JButton("Tạo Hóa Đơn");
+        taoHoaDonButton.setBackground(new Color(135,230,250));
+        taoHoaDonButton.setBorder(new EmptyBorder(10,10,10,10));
+        
+        themKhachHangButton = new JButton("Thêm Khách Hàng");
+        themKhachHangButton.setBackground(new Color(135,230,250));
+        themKhachHangButton.setBorder(new EmptyBorder(10,10,10,10));
+        
+        clearButton = new JButton("Xóa Form");
+        clearButton.setBackground(new Color(135,230,250));
+        clearButton.setBorder(new EmptyBorder(10,10,10,10));
+        
+        suDungDiemButton = new JButton("Sử Dụng Điểm");
+        suDungDiemButton.setBackground(new Color(135,230,250));
+        suDungDiemButton.setBorder(new EmptyBorder(10,10,10,10));
+        
+        apDungKMButton = new JButton("Áp Dụng Khuyến Mãi");
+        apDungKMButton.setBackground(new Color(135,230,250));
+        apDungKMButton.setBorder(new EmptyBorder(10,10,10,10));
+                 
         suDungDiemButton.setEnabled(false);
         apDungKMButton.setEnabled(false);
         sanPhamComboBox.addActionListener(e -> {
@@ -302,10 +416,6 @@ public class QuanLyCuaHang extends JFrame {
                 updateTongTien(); 
             }
         });
-
-        
-
-
 
         themSPButton.addActionListener(e -> {
             try {
@@ -337,7 +447,6 @@ public class QuanLyCuaHang extends JFrame {
                 JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
             }
             capNhatTongTienBanHang();
-
         });
 
         xoaSPButton.addActionListener(e -> {
@@ -348,7 +457,6 @@ public class QuanLyCuaHang extends JFrame {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!");
             }
             capNhatTongTienBanHang();
-
         });
 
         themKhachHangButton.addActionListener(e -> {
@@ -373,18 +481,103 @@ public class QuanLyCuaHang extends JFrame {
             int result = JOptionPane.showConfirmDialog(this, khPanel, "Thêm Khách Hàng", JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
                 try {
-                    String maKH = maKHField.getText();
-                    String tenKH = tenKHField.getText();
-                    String sdt = sdtField.getText();
-                    String email = emailField.getText();
-                    int diemTichLuy = Integer.parseInt(diemTichLuyField.getText());
+                    if (banHangTableModel.getRowCount() == 0) {
+                        JOptionPane.showMessageDialog(this, "Chưa có sản phẩm nào được chọn!");
+                        return;
+                    }
 
-                    kh = new KhachHang(maKH, tenKH, sdt, email, diemTichLuy);
-                    khachHangDao.themKhachHang(kh);
-                    dsKhachHang.add(kh);
-                    updateKhachHangComboBox(khachHangComboBox);
+                    String khachHangStr = (String) khachHangComboBox.getSelectedItem();
+                    KhachHang kh = null;
+
+                    if (khachHangStr != null && !khachHangStr.equalsIgnoreCase("Khách vãng lai")) {
+                        String maKH = khachHangStr.split(" - ")[0];
+                        kh = khachHangDao.findByMaKH(maKH);
+                    }
+
+                    String maHD = HoaDon.taoMaHoaDon(hoaDonDao);
+                    hd = new HoaDon(maHD, kh, loggedInNhanVien);
+
+                    String idKM = null;
+                    if (isKhuyenMaiApplied) {
+                        String kmStr = (String) khuyenMaiComboBox.getSelectedItem();
+                        if (!kmStr.equalsIgnoreCase("Không chọn khuyến mãi")) {
+                            idKM = kmStr.split(" - ")[0];
+                        }
+                    }
+
+                    double tongTienTruocGiam = 0;
+                    tempCTHoaDons = new ArrayList<>();
+                    for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
+                        String maSP = (String) banHangTableModel.getValueAt(i, 0);
+                        int soLuong = (int) banHangTableModel.getValueAt(i, 2);
+                        double donGia = (double) banHangTableModel.getValueAt(i, 3);
+
+                        sp = sanPhamDao.findByMaSP(maSP);
+                        if (sp == null) {
+                            throw new RuntimeException("Sản phẩm không tồn tại: " + maSP);
+                        }
+
+                        ct = new CTHoaDon(hd, sp, soLuong, donGia, kh);
+                        ct.setIdKM(idKM);
+                        double thanhTien = ct.tinhTongTien();
+                        ct.setTongTien(thanhTien);
+                        tempCTHoaDons.add(ct);
+                        tongTienTruocGiam += thanhTien;
+
+                        dsSanPhamDao.xuatKho(maSP, soLuong);
+                    }
+
+                    if (diemSuDungTemp > 0) {
+                        double giamGiaDiem = diemSuDungTemp * 1000;
+                        if (giamGiaDiem > tongTienTruocGiam) {
+                            giamGiaDiem = tongTienTruocGiam;
+                        }
+                        double conLai = giamGiaDiem;
+                        for (int i = 0; i < tempCTHoaDons.size(); i++) {
+                            ct = tempCTHoaDons.get(i);
+                            double thanhTien = ct.getTongTien();
+                            double tiLe = thanhTien / tongTienTruocGiam;
+                            double giam = giamGiaDiem * tiLe;
+                            if (i == tempCTHoaDons.size() - 1) {
+                                giam = conLai;
+                            }
+                            double newTongTien = thanhTien - giam;
+                            if (newTongTien < 0) newTongTien = 0;
+                            ct.setTongTien(newTongTien);
+                            conLai -= giam;
+                        }
+                    }
+
+                    for (CTHoaDon ct : tempCTHoaDons) {
+                        hd.getDsSanPham().add(ct);
+                    }
+
+                    hd.setDiemSuDung(diemSuDungTemp);
+                    if (kh != null) {
+                        int diemCongThem = (int) (hd.tinhTongTien() / 10000);
+                        kh.congDiemTichLuy(diemCongThem);
+                        khachHangDao.capNhatKhachHang(kh);
+                    }
+
+                    dsKhachHang = khachHangDao.findAll();
                     loadKhachHangTableData();
-                    JOptionPane.showMessageDialog(this, "Thêm khách hàng thành công!");
+                    updateKhachHangComboBox(khachHangComboBox);
+
+                    hoaDonDao.save(hd);
+                    dsHoaDon.add(hd);
+                    dsSanPham.setDsSanPham(sanPhamDao.findAll());
+                    loadSanPhamTableData();
+                    loadHoaDonTableData();
+
+                    banHangTableModel.setRowCount(0);
+                    isKhuyenMaiApplied = false;
+                    diemSuDungTemp = 0;
+                    isDiemUsed = false;
+                    suDungDiemButton.setEnabled(false);
+                    apDungKMButton.setEnabled(false);
+                    apDungKMButton.setEnabled(true);
+
+                    JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! Mã hóa đơn: " + maHD);
                 } catch (IllegalArgumentException ex) {
                     JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
                 } catch (Exception ex) {
@@ -468,14 +661,12 @@ public class QuanLyCuaHang extends JFrame {
 
                 hd.setDiemSuDung(diemSuDungTemp);
 
-                // Chỉ cộng điểm nếu KH không phải khách vãng lai
                 if (kh != null) {
-                    int diemCongThem = (int) (hd.tinhTongTien() / 10000); // Ví dụ 10k = 1 điểm
+                    int diemCongThem = (int) (hd.tinhTongTien() / 10000);
                     kh.congDiemTichLuy(diemCongThem);
                     khachHangDao.capNhatKhachHang(kh);
                 }
-
-                // Reload dữ liệu sau khi bán
+                
                 dsKhachHang = khachHangDao.findAll();
                 loadKhachHangTableData();
                 updateKhachHangComboBox(khachHangComboBox);
@@ -492,7 +683,8 @@ public class QuanLyCuaHang extends JFrame {
                 isDiemUsed = false;
                 suDungDiemButton.setEnabled(false);
                 apDungKMButton.setEnabled(false);
-                apDungKMButton.setEnabled(true);
+                tongTienLabel.setText("Tổng tiền: 0 VNĐ");
+                SumMoney = 0;
 
                 JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! Mã hóa đơn: " + maHD);
             } catch (Exception ex) {
@@ -500,12 +692,6 @@ public class QuanLyCuaHang extends JFrame {
                 JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
             }
         });
-
-
-
-        makeComboBoxSearchable(khachHangComboBox);
-        makeComboBoxSearchable(sanPhamComboBox);
-
         
         suDungDiemButton.addActionListener(e -> {
             try {
@@ -552,9 +738,12 @@ public class QuanLyCuaHang extends JFrame {
 
                     double giamGia = diemSuDung * 1000;
                     double tongTien = Double.parseDouble(tongTienField.getText());
-                    tongTien -= giamGia;
-                    if (tongTien < 0) tongTien = 0;
-                    tongTienField.setText(String.valueOf(tongTien));
+                    if(SumMoney < tongTien && SumMoney == 0) {
+                    	SumMoney = tongTien;
+                    }
+                    SumMoney -= giamGia;
+                    if (SumMoney < 0) SumMoney = 0;
+                    tongTienLabel.setText("Tổng tiền: " + String.format("%,.0f VNĐ", SumMoney));
 
                     diemSuDungTemp = diemSuDung; 
 
@@ -572,11 +761,6 @@ public class QuanLyCuaHang extends JFrame {
             }
         });
         
-        clearButton.addActionListener(e -> {
-            banHangTableModel.setRowCount(0);
-            soLuongField.setText("");
-            khachHangComboBox.setSelectedIndex(0);
-        });
 
         apDungKMButton.addActionListener(e -> {
             try {
@@ -606,15 +790,18 @@ public class QuanLyCuaHang extends JFrame {
                 }
 
                 double tongTien = Double.parseDouble(tongTienField.getText());
+                if(SumMoney < tongTien && SumMoney == 0) {
+                	SumMoney = tongTien;
+                }
                 double giamGia;
                 if (km.getGiaTriGiam() < 1) {
                     giamGia = tongTienGoc * km.getGiaTriGiam(); 
                 } else {
                     giamGia = km.getGiaTriGiam();
                 }
-                tongTien -= giamGia;
-                if (tongTien < 0) tongTien = 0;
-                tongTienField.setText(String.valueOf(tongTien));
+                SumMoney -= giamGia;
+                if (SumMoney < 0) SumMoney = 0;
+                tongTienLabel.setText("Tổng tiền: " + String.format("%,.0f VNĐ", SumMoney));
 
                 for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
                     String maSP = (String) banHangTableModel.getValueAt(i, 0);
@@ -632,6 +819,14 @@ public class QuanLyCuaHang extends JFrame {
             }
         });
         
+        clearButton.addActionListener(e -> {
+            banHangTableModel.setRowCount(0);
+            soLuongField.setText("");
+            khachHangComboBox.setSelectedIndex(0);
+        });
+        
+        makeComboBoxSearchable(khachHangComboBox);
+        makeComboBoxSearchable(sanPhamComboBox);
         buttonPanel.add(themSPButton);
         buttonPanel.add(xoaSPButton);
         buttonPanel.add(themKhachHangButton);
@@ -655,8 +850,6 @@ public class QuanLyCuaHang extends JFrame {
             comboBox.addItem(kh.getMaKH() + " - " + kh.getTenKH());
         }
     }
-
-
     private JPanel createSanPhamPanel() {
         panel = new JPanel(new BorderLayout());
         scrollPane = new JScrollPane(sanPhamTable);
@@ -697,11 +890,29 @@ public class QuanLyCuaHang extends JFrame {
 
         buttonPanel = new JPanel(new FlowLayout());
         addButton = new JButton("Thêm");
+        addButton.setBackground(new Color(135,230,250));
+        addButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         updateButton = new JButton("Cập Nhật");
+        updateButton.setBackground(new Color(135,230,250));
+        updateButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         deleteButton = new JButton("Xóa");
+        deleteButton.setBackground(new Color(135,230,250));
+        deleteButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         clearButton = new JButton("Xóa Form");
+        clearButton.setBackground(new Color(135,230,250));
+        clearButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         xemTheoDanhMucButton = new JButton("Xem Theo Danh Mục");
+        xemTheoDanhMucButton.setBackground(new Color(135,230,250));
+        xemTheoDanhMucButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         xemTatCaButton = new JButton("Xem Tất Cả");
+        xemTatCaButton.setBackground(new Color(135,230,250));
+        xemTatCaButton.setBorder(new EmptyBorder(10,10,10,10));
+        
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -749,8 +960,16 @@ public class QuanLyCuaHang extends JFrame {
 
         buttonPanel = new JPanel(new FlowLayout());
         addButton = new JButton("Thêm");
+        addButton.setBackground(new Color(135,230,250));
+        addButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         deleteButton = new JButton("Xóa");
+        deleteButton.setBackground(new Color(135,230,250));
+        deleteButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         clearButton = new JButton("Xóa Form");
+        clearButton.setBackground(new Color(135,230,250));
+        clearButton.setBorder(new EmptyBorder(10,10,10,10));
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
@@ -788,8 +1007,16 @@ public class QuanLyCuaHang extends JFrame {
 
         buttonPanel = new JPanel(new FlowLayout());
         addButton = new JButton("Thêm");
+        addButton.setBackground(new Color(135,230,250));
+        addButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         deleteButton = new JButton("Xóa");
+        deleteButton.setBackground(new Color(135,230,250));
+        deleteButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         clearButton = new JButton("Xóa Form");
+        clearButton.setBackground(new Color(135,230,250));
+        clearButton.setBorder(new EmptyBorder(10,10,10,10));
 
         buttonPanel.add(addButton);
         buttonPanel.add(deleteButton);
@@ -838,10 +1065,22 @@ public class QuanLyCuaHang extends JFrame {
         formPanel.add(diemTichLuyField);
 
         buttonPanel = new JPanel(new FlowLayout());
+        
         addButton = new JButton("Thêm");
+        addButton.setBackground(new Color(135,230,250));
+        addButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         updateButton = new JButton("Cập Nhật");
+        updateButton.setBackground(new Color(135,230,250));
+        updateButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         deleteButton = new JButton("Xóa");
+        deleteButton.setBackground(new Color(135,230,250));
+        deleteButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         clearButton = new JButton("Xóa Form");
+        clearButton.setBackground(new Color(135,230,250));
+        clearButton.setBorder(new EmptyBorder(10,10,10,10));
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -889,9 +1128,20 @@ public class QuanLyCuaHang extends JFrame {
 
         buttonPanel = new JPanel(new FlowLayout());
         addButton = new JButton("Thêm");
+        addButton.setBackground(new Color(135,230,250));
+        addButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         updateButton = new JButton("Cập Nhật");
+        updateButton.setBackground(new Color(135,230,250));
+        updateButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         deleteButton = new JButton("Xóa");
+        deleteButton.setBackground(new Color(135,230,250));
+        deleteButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         clearButton = new JButton("Xóa Form");
+        clearButton.setBackground(new Color(135,230,250));
+        clearButton.setBorder(new EmptyBorder(10,10,10,10));
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -943,9 +1193,20 @@ public class QuanLyCuaHang extends JFrame {
 
         buttonPanel = new JPanel(new FlowLayout());
         addButton = new JButton("Thêm");
+        addButton.setBackground(new Color(135,230,250));
+        addButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         updateButton = new JButton("Cập Nhật");
+        updateButton.setBackground(new Color(135,230,250));
+        updateButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         deleteButton = new JButton("Xóa");
+        deleteButton.setBackground(new Color(135,230,250));
+        deleteButton.setBorder(new EmptyBorder(10,10,10,10));
+        
         clearButton = new JButton("Xóa Form");
+        clearButton.setBackground(new Color(135,230,250));
+        clearButton.setBorder(new EmptyBorder(10,10,10,10));
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -972,39 +1233,6 @@ public class QuanLyCuaHang extends JFrame {
         addHoaDonContextMenu();
         scrollPane = new JScrollPane(hoaDonTable);
         panel.add(scrollPane, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel createBaoCaoPanel() {
-        panel = new JPanel(new BorderLayout());
-        baoCaoTextArea = new JTextArea();
-        baoCaoTextArea.setEditable(false);
-        scrollPane = new JScrollPane(baoCaoTextArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        dsBaoCao = baoCaoDao.findAll();
-        StringBuilder sb = new StringBuilder();
-        for (BaoCao bc : dsBaoCao) {
-            sb.append("ID: ").append(bc.getIdBaoCao())
-              .append(", Loại: ").append(bc.getLoaiBaoCao())
-              .append(", Tên: ").append(bc.getTenBaoCao())
-              .append("\nNội dung: ").append(bc.getNoiDung())
-              .append("\n----------------------------------------\n");
-        }
-        baoCaoTextArea.setText(sb.toString());
-
-        buttonPanel = new JPanel(new FlowLayout());
-        doanhThuButton = new JButton("Báo Cáo Doanh Thu");
-        tonKhoButton = new JButton("Báo Cáo Tồn Kho");
-
-        doanhThuButton.addActionListener(e -> taoBaoCaoDoanhThu());
-        tonKhoButton.addActionListener(e -> taoBaoCaoTonKho());
-
-        buttonPanel.add(doanhThuButton);
-        buttonPanel.add(tonKhoButton);
-
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-
         return panel;
     }
 
@@ -1134,7 +1362,9 @@ public class QuanLyCuaHang extends JFrame {
             String maNCC = nccStr.split(" - ")[0];
             double gia = Double.parseDouble(giaField.getText());
             if (gia <= 0) {
+         
                 JOptionPane.showMessageDialog(this, "Giá phải lớn hơn 0!");
+                
                 return;
             }
             String dmStr = (String) danhMucComboBox.getSelectedItem();
@@ -1577,7 +1807,7 @@ public class QuanLyCuaHang extends JFrame {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 Date tuNgay = sdf.parse(tuNgayField.getText());
                 Date denNgay = sdf.parse(denNgayField.getText());
-                bc = new BaoCao("BC" + System.currentTimeMillis(), "DoanhThu", "Báo Cáo Doanh Thu");
+                bc = new BaoCao("BC" + System.currentTimeMillis(), "Doanh Thu", "Báo Cáo Doanh Thu", loggedInNhanVien);
                 bc.taoBaoCaoDoanhThu(tuNgay, denNgay);
                 baoCaoDao.save(bc);
                 JOptionPane.showMessageDialog(this, "Tạo báo cáo doanh thu thành công!");
@@ -1592,7 +1822,7 @@ public class QuanLyCuaHang extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, "Tạo báo cáo tồn kho?", "Báo Cáo Tồn Kho", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                bc = new BaoCao("BC" + System.currentTimeMillis(), "TonKho", "Báo Cáo Tồn Kho");
+                bc = new BaoCao("BC" + System.currentTimeMillis(), "Tồn Kho", "Báo Cáo Tồn Kho", loggedInNhanVien);
                 bc.taoBaoCaoTonKho();
                 baoCaoDao.save(bc);
                 JOptionPane.showMessageDialog(this, "Tạo báo cáo tồn kho thành công!");
@@ -1601,6 +1831,45 @@ public class QuanLyCuaHang extends JFrame {
                 JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage());
             }
         }
+    }
+
+    private JPanel createBaoCaoPanel() {
+        panel = new JPanel(new BorderLayout());
+        baoCaoTextArea = new JTextArea();
+        baoCaoTextArea.setEditable(false);
+        scrollPane = new JScrollPane(baoCaoTextArea);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        dsBaoCao = baoCaoDao.findAll();
+        StringBuilder sb = new StringBuilder();
+        for (BaoCao bc : dsBaoCao) {
+            sb.append("ID: ").append(bc.getIdBaoCao())
+              .append(", Loại: ").append(bc.getLoaiBaoCao())
+              .append(", Tên: ").append(bc.getTenBaoCao())
+              .append(", Nhân viên: ").append(bc.getNhanVien().getTenNhanVien())
+              .append(" (Mã NV: ").append(bc.getNhanVien().getMaNV()).append(")")
+              .append("\nNội dung: ").append(bc.getNoiDung())
+              .append("\n----------------------------------------\n");
+        }
+        baoCaoTextArea.setText(sb.toString());
+
+        buttonPanel = new JPanel(new FlowLayout());
+        doanhThuButton = new JButton("Báo Cáo Doanh Thu");
+        tonKhoButton = new JButton("Báo Cáo Tồn Kho");
+        doanhThuButton.setBackground(new Color(135,230,250));
+        doanhThuButton.setBorder(new EmptyBorder(10,10,10,10));
+        tonKhoButton.setBackground(new Color(135,230,250));
+        tonKhoButton.setBorder(new EmptyBorder(10,10,10,10));
+
+        doanhThuButton.addActionListener(e -> taoBaoCaoDoanhThu());
+        tonKhoButton.addActionListener(e -> taoBaoCaoTonKho());
+
+        buttonPanel.add(doanhThuButton);
+        buttonPanel.add(tonKhoButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return panel;
     }
 
     void xemChiTietHoaDon(String maHD) {
@@ -1866,74 +2135,71 @@ public class QuanLyCuaHang extends JFrame {
         contextMenu.add(xemChiTietItem);
         hoaDonTable.setComponentPopupMenu(contextMenu);
     }
-    private void makeComboBoxSearchable(JComboBox<String> comboBox) {
-        JTextField editor = (JTextField) comboBox.getEditor().getEditorComponent();
-        comboBox.setEditable(true);
-        editor.addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                String text = editor.getText();
-                comboBox.removeAllItems();
-                if (comboBox == khachHangComboBox) {
-                    comboBox.addItem("Khách vãng lai"); // Giữ lại nếu là khách hàng
-                    for (KhachHang kh : dsKhachHang) {
-                        String item = kh.getMaKH() + " - " + kh.getTenKH();
-                        if (item.toLowerCase().contains(text.toLowerCase())) {
-                            comboBox.addItem(item);
-                        }
-                    }
-                } else if (comboBox == sanPhamComboBox) {
-                    for (SanPham sp : dsSanPham.getDsSanPham()) {
-                        String item = sp.getMaSP() + " - " + sp.getTenSP();
-                        if (item.toLowerCase().contains(text.toLowerCase())) {
-                            comboBox.addItem(item);
-                        }
-                    }
-                }
-                editor.setText(text); 
-                comboBox.showPopup();
-            }
-        });
-    }
-    private void updateTongTien() {
-        try {
-            String spStr = (String) sanPhamComboBox.getSelectedItem();
-            if (spStr == null) {
-                tongTienField.setText("0");
-                return;
-            }
-            String maSP = spStr.split(" - ")[0];
-            SanPham sp = sanPhamDao.findByMaSP(maSP);
-            if (sp == null) {
-                tongTienField.setText("0");
-                return;
-            }
 
-            int soLuong = Integer.parseInt(soLuongField.getText());
-            if (soLuong <= 0) {
-                tongTienField.setText("0");
-                return;
-            }
-            
-            double thanhTien = soLuong * sp.getGia();
-            tongTienField.setText(String.valueOf(thanhTien));
-        } catch (Exception ex) {
-            tongTienField.setText("0"); 
-        }
-    }
-    private void capNhatTongTienBanHang() {
-        double tongTien = 0;
-        for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
-            Object obj = banHangTableModel.getValueAt(i, 4); 
-            if (obj instanceof Number) {
-                tongTien += ((Number) obj).doubleValue();
-            }
-        }
-        tongTienLabel.setText("Tổng tiền: " + String.format("%,.0f VNĐ", tongTien));
-        tongTienField.setText(String.valueOf(tongTien)); 
-    }
+	private void makeComboBoxSearchable(JComboBox<String> comboBox) {
+	    JTextField editor = (JTextField) comboBox.getEditor().getEditorComponent();
+	    comboBox.setEditable(true);
+	    editor.addKeyListener(new java.awt.event.KeyAdapter() {
+	        @Override
+	        public void keyReleased(java.awt.event.KeyEvent e) {
+	            String text = editor.getText();
+	            comboBox.removeAllItems();
+	            if (comboBox == khachHangComboBox) {
+	                comboBox.addItem("Khách vãng lai"); 
+	                for (KhachHang kh : dsKhachHang) {
+	                    String item = kh.getMaKH() + " - " + kh.getTenKH();
+	                    if (item.toLowerCase().contains(text.toLowerCase())) {
+	                        comboBox.addItem(item);
+	                    }
+	                }
+	            } else if (comboBox == sanPhamComboBox) {
+	                for (SanPham sp : dsSanPham.getDsSanPham()) {
+	                    String item = sp.getMaSP() + " - " + sp.getTenSP();
+	                    if (item.toLowerCase().contains(text.toLowerCase())) {
+	                        comboBox.addItem(item);
+	                    }
+	                }
+	            }
+	            editor.setText(text); 
+	            comboBox.showPopup();
+	        }
+	    });
+	}
+	private void updateTongTien() {
+	    try {
+	        String spStr = (String) sanPhamComboBox.getSelectedItem();
+	        if (spStr == null) {
+	            tongTienField.setText("0");
+	            return;
+	        }
+	        String maSP = spStr.split(" - ")[0];
+	        SanPham sp = sanPhamDao.findByMaSP(maSP);
+	        if (sp == null) {
+	            tongTienField.setText("0");
+	            return;
+	        }
+	
+	        int soLuong = Integer.parseInt(soLuongField.getText());
+	        if (soLuong <= 0) {
+	            tongTienField.setText("0");
+	            return;
+	        }
+	        
+	        double thanhTien = soLuong * sp.getGia();
+	        tongTienField.setText(String.valueOf(thanhTien));
+	    } catch (Exception ex) {
+	        tongTienField.setText("0"); 
+	    }
+	}
+	private void capNhatTongTienBanHang() {
+	    double tongTien = 0;
+	    for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
+	        Object obj = banHangTableModel.getValueAt(i, 4); 
+	        if (obj instanceof Number) {
+	            tongTien += ((Number) obj).doubleValue();
+	        }
+	    }
+	    tongTienLabel.setText("Tổng tiền: " + String.format("%,.0f VNĐ", tongTien));
+	}
 
-   }
-
-
-
+}

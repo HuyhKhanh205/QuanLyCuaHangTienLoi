@@ -90,7 +90,9 @@ CREATE TABLE BaoCao (
     IDBaoCao NVARCHAR(50) PRIMARY KEY,
     LoaiBaoCao NVARCHAR(100) NOT NULL,
     TenBaoCao NVARCHAR(255) NOT NULL,
-    NoiDung NVARCHAR(MAX) NOT NULL
+    NoiDung NVARCHAR(MAX) NOT NULL,
+	MaNV NVARCHAR(50),
+	FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
 );
 GO
 
@@ -127,5 +129,5 @@ INSERT INTO NhanVien (MaNV, TenNhanVien, ChucVu, SDT) VALUES
 
 -- Chèn dữ liệu vào KhuyenMai
 INSERT INTO KhuyenMai (IDKM, MoTa, GiaTriGiam, NgayBatDau, NgayKetThuc) VALUES
-('KM001', N'Giảm 10% cho sữa', 0.1, '2025-04-01', '2025-04-30'),
-('KM002', N'Giảm 5000đ cho bánh kẹo', 5000, '2025-04-15', '2025-05-15');
+('KM001', N'Giảm 10%', 0.1, '2025-04-01', '2025-04-30'),
+('KM002', N'Giảm 5000đ', 5000, '2025-04-15', '2025-05-15');
