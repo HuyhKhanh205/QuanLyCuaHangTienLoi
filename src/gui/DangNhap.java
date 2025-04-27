@@ -2,16 +2,19 @@ package gui;
 
 import javax.swing.*;
 
+import dao.NhanVien_Dao;
 import entity.NhanVien;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class DangNhap extends JFrame {
-    private JTextField txtTenDangNhap;
-    private JPasswordField txtMatKhau;
-    private JButton btnDangNhap;
-	private NhanVien nv;
+    private JComboBox<String> nhanVienComboBox;
+    private JPasswordField passwordField;
+    private JButton loginButton;
+    private NhanVien_Dao nhanVienDao;
+    private ArrayList<NhanVien> dsNhanVien;
 
     public DangNhap() {
         setTitle("Đăng nhập hệ thống");
@@ -19,7 +22,10 @@ public class DangNhap extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // Panel có ảnh nền
+        nhanVienDao = new NhanVien_Dao();
+        dsNhanVien = nhanVienDao.findAll();
+
+        // Panel nền có ảnh
         JPanel bgPanel = new JPanel() {
             ImageIcon bg = new ImageIcon(getClass().getResource("/img/bg.jpg"));
             Image image = bg.getImage();
@@ -32,49 +38,71 @@ public class DangNhap extends JFrame {
         };
         bgPanel.setLayout(new GridBagLayout());
 
+        // Panel giao diện đăng nhập
+        JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel label = new JLabel("Chọn Nhân Viên:");
+        label.setForeground(Color.WHITE);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(label);
+
+        nhanVienComboBox = new JComboBox<>();
+        updateNhanVienComboBox();
+        panel.add(nhanVienComboBox);
+
+        passwordField = new JPasswordField();
+        passwordField.setEchoChar('*');
+        panel.add(passwordField);
+
+        loginButton = new JButton("Đăng Nhập");
+        loginButton.addActionListener(e -> login());
+        panel.add(loginButton);
+
+        // Thêm panel vào giữa bgPanel
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        // Label + TextField
-        JLabel lblUser = new JLabel("Tên đăng nhập:");
-        lblUser.setForeground(Color.BLACK);
-        gbc.gridx = 0; gbc.gridy = 0;
-        bgPanel.add(lblUser, gbc);
-
-        txtTenDangNhap = new JTextField(15);
-        gbc.gridx = 1;
-        bgPanel.add(txtTenDangNhap, gbc);
-
-        JLabel lblPass = new JLabel("Mật khẩu:");
-        lblPass.setForeground(Color.BLACK);
-        gbc.gridx = 0; gbc.gridy = 1;
-        bgPanel.add(lblPass, gbc);
-
-        txtMatKhau = new JPasswordField(15);
-        gbc.gridx = 1;
-        bgPanel.add(txtMatKhau, gbc);
-
-        btnDangNhap = new JButton("Đăng nhập");
-        gbc.gridx = 1; gbc.gridy = 2;
-        bgPanel.add(btnDangNhap, gbc);
-
-        // Sự kiện đăng nhập
-        btnDangNhap.addActionListener(e -> dangNhap());
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        bgPanel.add(panel, gbc);
 
         add(bgPanel);
     }
 
-    private void dangNhap() {
-    	
-        String user = txtTenDangNhap.getText().trim();
-        String pass = new String(txtMatKhau.getPassword()).trim();
-        if (user.equals("admin") && pass.equals("admin")) {
-            JOptionPane.showMessageDialog(this, "Đăng nhập thành công!");
-            this.dispose();
-            nv = new NhanVien("admin", "Quản trị viên", "Admin", "0123456789");
-            new QuanLyCuaHang(nv).setVisible(true);
+    private void updateNhanVienComboBox() {
+        nhanVienComboBox.removeAllItems();
+        for (NhanVien nv : dsNhanVien) {
+            nhanVienComboBox.addItem(nv.getMaNV() + " - " + nv.getTenNhanVien());
+        }
+    }
+
+    private void login() {
+        String nvStr = (String) nhanVienComboBox.getSelectedItem();
+        if (nvStr == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên!");
+            return;
+        }
+
+        String inputPassword = new String(passwordField.getPassword()).trim();
+        if (inputPassword.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập mật khẩu!");
+            return;
+        }
+
+        String maNV = nvStr.split(" - ")[0];
+        NhanVien nv = nhanVienDao.findByMaNV(maNV);
+        if (nv == null) {
+            JOptionPane.showMessageDialog(this, "Nhân viên không tồn tại!");
+            return;
+        }
+
+        if (inputPassword.equals(maNV)) {
+            JOptionPane.showMessageDialog(this, "Đăng nhập thành công: " + nv.getChucVu() + " - " + nv.getTenNhanVien());
+            dispose();
+            QuanLyCuaHang quanLy = new QuanLyCuaHang(nv);
+            quanLy.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu!");
+            JOptionPane.showMessageDialog(this, "Sai mật khẩu!");
         }
     }
 
