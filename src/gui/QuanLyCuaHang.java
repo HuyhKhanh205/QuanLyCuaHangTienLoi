@@ -5,6 +5,7 @@ import entity.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class QuanLyCuaHang extends JFrame {
 	private boolean isKhuyenMaiApplied = false;
 	private boolean isDiemUsed = false;
 	private int diemSuDungTemp = 0;
+	private JLabel tongTienLabel;
 	
 	public QuanLyCuaHang(NhanVien nv) {
 	    this.loggedInNhanVien = nv;
@@ -202,6 +204,18 @@ public class QuanLyCuaHang extends JFrame {
         banHangTable = new JTable(banHangTableModel);
         scrollPane = new JScrollPane(banHangTable);
         panel.add(scrollPane, BorderLayout.CENTER);
+    
+        tongTienLabel = new JLabel("Tổng tiền: 0 VNĐ");
+        tongTienLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        tongTienLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        
+        JPanel tableWithTotalPanel = new JPanel(new BorderLayout());
+        tableWithTotalPanel.add(scrollPane, BorderLayout.CENTER);
+        tableWithTotalPanel.add(tongTienLabel, BorderLayout.SOUTH);
+
+        panel.add(tableWithTotalPanel, BorderLayout.CENTER);
+
 
         formPanel = new JPanel(new GridLayout(7, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -219,7 +233,7 @@ public class QuanLyCuaHang extends JFrame {
         formPanel.add(sanPhamComboBox);
 
         formPanel.add(new JLabel("Số Lượng:"));
-        soLuongField = new JTextField(10);
+        soLuongField = new JTextField("1", 10);
         formPanel.add(soLuongField);
 
         formPanel.add(new JLabel("Tổng Tiền:"));
@@ -278,6 +292,20 @@ public class QuanLyCuaHang extends JFrame {
         
         suDungDiemButton.setEnabled(false);
         apDungKMButton.setEnabled(false);
+        sanPhamComboBox.addActionListener(e -> {
+            soLuongField.setText("1"); 
+            updateTongTien(); 
+        });
+        soLuongField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                updateTongTien(); 
+            }
+        });
+
+        
+
+
 
         themSPButton.addActionListener(e -> {
             try {
@@ -308,6 +336,8 @@ public class QuanLyCuaHang extends JFrame {
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
             }
+            capNhatTongTienBanHang();
+
         });
 
         xoaSPButton.addActionListener(e -> {
@@ -317,6 +347,8 @@ public class QuanLyCuaHang extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!");
             }
+            capNhatTongTienBanHang();
+
         });
 
         themKhachHangButton.addActionListener(e -> {
@@ -368,25 +400,21 @@ public class QuanLyCuaHang extends JFrame {
                     return;
                 }
 
-                String khStr = (String) khachHangComboBox.getSelectedItem();
-                if (khStr == null) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng!");
-                    return;
-                }
-                String maKH = khStr.split(" - ")[0];
-                kh = khachHangDao.findByMaKH(maKH);
-                if (kh == null) {
-                    JOptionPane.showMessageDialog(this, "Khách hàng không tồn tại!");
-                    return;
+                String khachHangStr = (String) khachHangComboBox.getSelectedItem();
+                KhachHang kh = null;
+
+                if (khachHangStr != null && !khachHangStr.equalsIgnoreCase("Khách vãng lai")) {
+                    String maKH = khachHangStr.split(" - ")[0];
+                    kh = khachHangDao.findByMaKH(maKH);
                 }
 
                 String maHD = HoaDon.taoMaHoaDon(hoaDonDao);
-                hd = new HoaDon(maHD, kh, loggedInNhanVien); 
+                hd = new HoaDon(maHD, kh, loggedInNhanVien);
 
                 String idKM = null;
                 if (isKhuyenMaiApplied) {
                     String kmStr = (String) khuyenMaiComboBox.getSelectedItem();
-                    if (!kmStr.equals("Không chọn khuyến mãi")) {
+                    if (!kmStr.equalsIgnoreCase("Không chọn khuyến mãi")) {
                         idKM = kmStr.split(" - ")[0];
                     }
                 }
@@ -405,7 +433,7 @@ public class QuanLyCuaHang extends JFrame {
 
                     ct = new CTHoaDon(hd, sp, soLuong, donGia, kh);
                     ct.setIdKM(idKM);
-                    double thanhTien = ct.tinhTongTien(); 
+                    double thanhTien = ct.tinhTongTien();
                     ct.setTongTien(thanhTien);
                     tempCTHoaDons.add(ct);
                     tongTienTruocGiam += thanhTien;
@@ -416,16 +444,16 @@ public class QuanLyCuaHang extends JFrame {
                 if (diemSuDungTemp > 0) {
                     double giamGiaDiem = diemSuDungTemp * 1000;
                     if (giamGiaDiem > tongTienTruocGiam) {
-                        giamGiaDiem = tongTienTruocGiam; 
+                        giamGiaDiem = tongTienTruocGiam;
                     }
                     double conLai = giamGiaDiem;
                     for (int i = 0; i < tempCTHoaDons.size(); i++) {
                         ct = tempCTHoaDons.get(i);
                         double thanhTien = ct.getTongTien();
-                        double tiLe = thanhTien / tongTienTruocGiam; 
-                        double giam = giamGiaDiem * tiLe; 
+                        double tiLe = thanhTien / tongTienTruocGiam;
+                        double giam = giamGiaDiem * tiLe;
                         if (i == tempCTHoaDons.size() - 1) {
-                            giam = conLai; 
+                            giam = conLai;
                         }
                         double newTongTien = thanhTien - giam;
                         if (newTongTien < 0) newTongTien = 0;
@@ -438,9 +466,16 @@ public class QuanLyCuaHang extends JFrame {
                     hd.getDsSanPham().add(ct);
                 }
 
-                hd.setDiemSuDung(diemSuDungTemp); 
-                kh.congDiemTichLuy(1);
-                khachHangDao.capNhatKhachHang(kh);
+                hd.setDiemSuDung(diemSuDungTemp);
+
+                // Chỉ cộng điểm nếu KH không phải khách vãng lai
+                if (kh != null) {
+                    int diemCongThem = (int) (hd.tinhTongTien() / 10000); // Ví dụ 10k = 1 điểm
+                    kh.congDiemTichLuy(diemCongThem);
+                    khachHangDao.capNhatKhachHang(kh);
+                }
+
+                // Reload dữ liệu sau khi bán
                 dsKhachHang = khachHangDao.findAll();
                 loadKhachHangTableData();
                 updateKhachHangComboBox(khachHangComboBox);
@@ -450,18 +485,27 @@ public class QuanLyCuaHang extends JFrame {
                 dsSanPham.setDsSanPham(sanPhamDao.findAll());
                 loadSanPhamTableData();
                 loadHoaDonTableData();
+
                 banHangTableModel.setRowCount(0);
                 isKhuyenMaiApplied = false;
-                diemSuDungTemp = 0; 
-                apDungKMButton.setEnabled(true);
-                JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! Mã hóa đơn: " + maHD);
-                isDiemUsed = false; 
-                suDungDiemButton.setEnabled(false); 
+                diemSuDungTemp = 0;
+                isDiemUsed = false;
+                suDungDiemButton.setEnabled(false);
                 apDungKMButton.setEnabled(false);
+                apDungKMButton.setEnabled(true);
+
+                JOptionPane.showMessageDialog(this, "Tạo hóa đơn thành công! Mã hóa đơn: " + maHD);
             } catch (Exception ex) {
+                ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
             }
         });
+
+
+
+        makeComboBoxSearchable(khachHangComboBox);
+        makeComboBoxSearchable(sanPhamComboBox);
+
         
         suDungDiemButton.addActionListener(e -> {
             try {
@@ -606,10 +650,12 @@ public class QuanLyCuaHang extends JFrame {
 
     private void updateKhachHangComboBox(JComboBox<String> comboBox) {
         comboBox.removeAllItems();
+        comboBox.addItem("Khách vãng lai"); 
         for (KhachHang kh : dsKhachHang) {
             comboBox.addItem(kh.getMaKH() + " - " + kh.getTenKH());
         }
     }
+
 
     private JPanel createSanPhamPanel() {
         panel = new JPanel(new BorderLayout());
@@ -1820,4 +1866,74 @@ public class QuanLyCuaHang extends JFrame {
         contextMenu.add(xemChiTietItem);
         hoaDonTable.setComponentPopupMenu(contextMenu);
     }
-}
+    private void makeComboBoxSearchable(JComboBox<String> comboBox) {
+        JTextField editor = (JTextField) comboBox.getEditor().getEditorComponent();
+        comboBox.setEditable(true);
+        editor.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                String text = editor.getText();
+                comboBox.removeAllItems();
+                if (comboBox == khachHangComboBox) {
+                    comboBox.addItem("Khách vãng lai"); // Giữ lại nếu là khách hàng
+                    for (KhachHang kh : dsKhachHang) {
+                        String item = kh.getMaKH() + " - " + kh.getTenKH();
+                        if (item.toLowerCase().contains(text.toLowerCase())) {
+                            comboBox.addItem(item);
+                        }
+                    }
+                } else if (comboBox == sanPhamComboBox) {
+                    for (SanPham sp : dsSanPham.getDsSanPham()) {
+                        String item = sp.getMaSP() + " - " + sp.getTenSP();
+                        if (item.toLowerCase().contains(text.toLowerCase())) {
+                            comboBox.addItem(item);
+                        }
+                    }
+                }
+                editor.setText(text); 
+                comboBox.showPopup();
+            }
+        });
+    }
+    private void updateTongTien() {
+        try {
+            String spStr = (String) sanPhamComboBox.getSelectedItem();
+            if (spStr == null) {
+                tongTienField.setText("0");
+                return;
+            }
+            String maSP = spStr.split(" - ")[0];
+            SanPham sp = sanPhamDao.findByMaSP(maSP);
+            if (sp == null) {
+                tongTienField.setText("0");
+                return;
+            }
+
+            int soLuong = Integer.parseInt(soLuongField.getText());
+            if (soLuong <= 0) {
+                tongTienField.setText("0");
+                return;
+            }
+            
+            double thanhTien = soLuong * sp.getGia();
+            tongTienField.setText(String.valueOf(thanhTien));
+        } catch (Exception ex) {
+            tongTienField.setText("0"); 
+        }
+    }
+    private void capNhatTongTienBanHang() {
+        double tongTien = 0;
+        for (int i = 0; i < banHangTableModel.getRowCount(); i++) {
+            Object obj = banHangTableModel.getValueAt(i, 4); 
+            if (obj instanceof Number) {
+                tongTien += ((Number) obj).doubleValue();
+            }
+        }
+        tongTienLabel.setText("Tổng tiền: " + String.format("%,.0f VNĐ", tongTien));
+        tongTienField.setText(String.valueOf(tongTien)); 
+    }
+
+   }
+
+
+
