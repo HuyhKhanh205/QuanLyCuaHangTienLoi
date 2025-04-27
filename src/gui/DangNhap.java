@@ -15,7 +15,7 @@ public class DangNhap extends JFrame {
 
     public DangNhap() {
         setTitle("Đăng nhập hệ thống");
-        setSize(1100, 700);
+        setSize(1200, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -71,6 +71,7 @@ public class DangNhap extends JFrame {
         if (user.equals("admin") && pass.equals("admin")) {
             JOptionPane.showMessageDialog(this, "Đăng nhập thành công!");
             this.dispose();
+            nv = new NhanVien("admin", "Quản trị viên", "Admin", "0123456789");
             new QuanLyCuaHang(nv).setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu!");
